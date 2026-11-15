@@ -65,10 +65,11 @@
     #qrcode-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; background: #fffdf9; border: 2px dashed var(--primary-orange); border-radius: 12px; min-height: 220px; }
     .warn-local { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; font-size: 0.82rem; line-height: 1.45; }
 
-    .cam-wrapper { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #1e272e; border-radius: 10px; overflow: hidden; }
+    /* A4 橫向比例參考框 (1.414 : 1) */
+    .cam-wrapper { position: relative; width: 100%; aspect-ratio: 1.414 / 1; background: #1e272e; border-radius: 10px; overflow: hidden; }
     #op-video { width: 100%; height: 100%; object-fit: cover; }
-    .cam-guide { position: absolute; inset: 12%; border: 3px dashed #f1c40f; border-radius: 10px; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
-    .cam-guide span { background: rgba(0,0,0,0.65); color: #fff; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px; }
+    .cam-guide { position: absolute; inset: 8%; border: 3px dashed #f1c40f; border-radius: 8px; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+    .cam-guide span { background: rgba(0,0,0,0.7); color: #fff; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px; }
 
     .slider-row { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
     .bus-list { max-height: 460px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
@@ -99,7 +100,8 @@
     .mobile-header p { font-size: 0.9rem; color: #5d6d7e; }
     .conn-pill { align-self: center; padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; background: #fef9e7; color: #b7950b; border: 1px solid #f9e79f; }
     .conn-pill.connected { background: #eafaf1; color: #1e8449; border-color: #a9dfbf; }
-    .mobile-preview-area { width: 100%; height: 210px; border-radius: 12px; border: 2px dashed #e67e22; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    /* 手機預覽區採用 A4 橫向比例 (1.414 : 1) */
+    .mobile-preview-area { width: 100%; aspect-ratio: 1.414 / 1; border-radius: 12px; border: 2px dashed #e67e22; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
     #mobile-preview-img { width: 260px; height: 150px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); }
     .mobile-btn-big { width: 100%; padding: 15px; font-size: 1.15rem; border-radius: 12px; }
   </style>
@@ -123,17 +125,17 @@
       <div class="stat-box">
         <div class="title">目前場上行駛車輛</div>
         <div class="num"><span id="stat-active">0</span> <span style="font-size:1rem;color:#7f8c8d;">/ 12</span></div>
-        <div class="desc">最高同時承載 12 輛小巴</div>
+        <div class="desc">防重疊自動跟車安全車距</div>
       </div>
       <div class="stat-box">
         <div class="title">排隊等候區人數</div>
         <div class="num" id="stat-queue" style="color:var(--accent-blue);">0</div>
-        <div class="desc">滿 12 輛且未滿 3 分鐘時排隊</div>
+        <div class="desc">滿 12 輛且未滿 5 分鐘時排隊</div>
       </div>
       <div class="stat-box">
         <div class="title">場上最久參加者車輛</div>
         <div class="num" id="stat-oldest" style="color:var(--accent-green);">00:00</div>
-        <div class="desc">滿 03:00 (180秒) 可被新車替換</div>
+        <div class="desc">保底延長至 05:00 (300秒)</div>
       </div>
       <div class="stat-box">
         <div class="title">手機連線接收頻道</div>
@@ -164,16 +166,16 @@
 
       <div class="panel-card">
         <h2>
-          <span>📷 2. 現場工作人員代拍 (Webcam)</span>
+          <span>📷 2. 現場工作人員代拍 (A4 紙框)</span>
           <button class="btn btn-gray" style="padding:4px 10px; font-size:0.8rem;" onclick="initOpCamera()">重啟鏡頭</button>
         </h2>
         <div class="cam-wrapper">
           <video id="op-video" autoplay playsinline muted></video>
-          <div class="cam-guide"><span>請將白紙小巴對準框內（車頭朝右）</span></div>
+          <div class="cam-guide"><span>請將 A4 白紙小巴對準框內（紙外雜物自動裁切）</span></div>
         </div>
         <div class="slider-row">
           <label style="display:flex; justify-content:space-between;">
-            <span>白紙去背敏感度 (自動校準光線)：</span><strong id="op-thresh-label">210</strong>
+            <span>白紙去背敏感度：</span><strong id="op-thresh-label">210</strong>
           </label>
           <input type="range" id="op-thresh" min="150" max="245" value="210" oninput="document.getElementById('op-thresh-label').innerText=this.value" />
         </div>
@@ -204,7 +206,7 @@
     <div class="mobile-card">
       <div class="mobile-header">
         <h1>🚌 耆康黃色小巴遊社區</h1>
-        <p>拍下你彩繪的小黃巴，讓它開進社區大電視！</p>
+        <p>拍下你的 A4 填色小巴，系統會自動裁切紙張以外範圍！</p>
       </div>
       <div id="mobile-conn-status" class="conn-pill">⏳ 正在連線至大電視系統...</div>
       <input type="file" id="mobile-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handleMobileFileSelect(event)" />
@@ -215,7 +217,7 @@
       </div>
       <div class="mobile-preview-area checkerboard">
         <img id="mobile-preview-img" alt="預覽小巴" style="display:none;" />
-        <span id="mobile-preview-hint" style="color:#7f8c8d; font-size:0.9rem; text-align:center; padding:12px;">請將畫好小巴的白紙拍下來（系統會自動去背並對齊標準尺寸！）</span>
+        <span id="mobile-preview-hint" style="color:#7f8c8d; font-size:0.9rem; text-align:center; padding:12px;">請將整張 A4 白紙拍入畫面（影多左紙外範圍會自動 CUT 走！）</span>
       </div>
       <div class="slider-row" id="mobile-slider-box" style="display:none;">
         <label style="display:flex; justify-content:space-between;">
@@ -232,12 +234,17 @@
 
   <script>
     const MAX_BUSES_ON_STAGE = 12;
-    const MIN_GUARANTEE_MS = 3 * 60 * 1000;
+    // 延長每架參加者小巴在場上的保底展示時間至 5 分鐘 (300秒)
+    const MIN_GUARANTEE_MS = 5 * 60 * 1000;
     const SYNC_CHANNEL_NAME = 'sage_minibus_tv_sync_v2';
 
-    // 系統預設小巴的標準畫布尺寸（確保所有上載小巴與預設小巴尺寸 100% 一致）
+    // 系統預設小巴標準尺寸 (260x150) 與 A4 紙張長寬比 (1.414 : 1)
     const STANDARD_BUS_WIDTH = 260;
     const STANDARD_BUS_HEIGHT = 150;
+    const A4_LANDSCAPE_RATIO = 1.4142;
+
+    // 安全車距參數（防止前後小巴重疊）
+    const SAFE_PROGRESS_GAP = 0.16;
 
     const urlParams = new URLSearchParams(window.location.search);
     const VIEW_MODE = urlParams.get('mode') || 'operator';
@@ -285,6 +292,12 @@
           broadcastFullStateToTV();
         } else if (msg.type === 'BUS_EXITED_RIGHT') {
           onBusExitedRightBoundary(msg.busId);
+        } else if (msg.type === 'TV_PROGRESS_SYNC') {
+          // 同步場上車輛最新進度，確保發車時不會與入口車輛重疊
+          msg.positions.forEach(p => {
+            const found = activeBuses.find(b => b.id === p.id);
+            if (found) found.progress = p.progress;
+          });
         }
       };
 
@@ -361,9 +374,9 @@
       if (!video.videoWidth) { alert('攝影機尚未就緒！'); return; }
       const canvas = document.getElementById('offscreen-canvas');
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      canvas.width = video.videoWidth * 0.76;
-      canvas.height = video.videoHeight * 0.76;
-      ctx.drawImage(video, video.videoWidth * 0.12, video.videoHeight * 0.12, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const cleanPng = processWhiteBgRemoval(canvas, ctx, parseInt(document.getElementById('op-thresh').value, 10), 28);
       enqueueBusFromAnySource(cleanPng, false, '現場代拍');
     }
@@ -403,48 +416,118 @@
     }
 
     // =========================================================================
-    // 升級版：自動白平衡校準去背 + 強制統一為系統預設小巴尺寸 (260x150)
+    // 核心演算法：A4 紙張區域自動偵測與裁切 (自動 CUT 走白紙以外雜物) + 去背標準化
     // =========================================================================
     function processWhiteBgRemoval(canvas, ctx, threshold = 210, feather = 28) {
-      const w = canvas.width, h = canvas.height;
-      const imgData = ctx.getImageData(0, 0, w, h);
-      const data = imgData.data;
+      let w = canvas.width, h = canvas.height;
+      let imgData = ctx.getImageData(0, 0, w, h);
+      let data = imgData.data;
 
-      // 步驟 1：採樣畫面四個角落的白紙環境光顏色，進行自動白平衡補償
-      // 解決手機在室內黃光或陰影下拍照時，白紙變成灰暗/偏黃導致去背失敗的問題
+      // 步驟 1：偵測 A4 白紙區域邊界，自動裁切掉紙張以外的桌面、手指與背景雜物
+      // 計算畫面中央區域的白紙亮度基準
+      let centerLumSum = 0, centerCount = 0;
+      const cx0 = Math.floor(w * 0.25), cx1 = Math.floor(w * 0.75);
+      const cy0 = Math.floor(h * 0.25), cy1 = Math.floor(h * 0.75);
+      for (let y = cy0; y < cy1; y += 3) {
+        for (let x = cx0; x < cx1; x += 3) {
+          const i = (y * w + x) * 4;
+          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          if (lum > 135) {
+            centerLumSum += lum;
+            centerCount++;
+          }
+        }
+      }
+      const paperBaseLum = centerCount > 0 ? (centerLumSum / centerCount) : 210;
+      const paperDetectThresh = Math.max(125, paperBaseLum * 0.68);
+
+      // 掃描找出連通的 A4 紙張最大外接矩形 (Paper Bounding Box)
+      let paperMinX = w, paperMaxX = 0, paperMinY = h, paperMaxY = 0;
+      let paperPixelCount = 0;
+      for (let y = 0; y < h; y += 2) {
+        for (let x = 0; x < w; x += 2) {
+          const i = (y * w + x) * 4;
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+          const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+          const sat = maxC === 0 ? 0 : (maxC - minC) / maxC;
+          // 屬於白紙或紙上的彩色填色區域（排除低亮度的深色桌面與陰影背景）
+          if (lum >= paperDetectThresh || (lum >= 95 && sat > 0.28)) {
+            if (x < paperMinX) paperMinX = x;
+            if (x > paperMaxX) paperMaxX = x;
+            if (y < paperMinY) paperMinY = y;
+            if (y > paperMaxY) paperMaxY = y;
+            paperPixelCount++;
+          }
+        }
+      }
+
+      // 若成功偵測到紙張且拍到了紙張以外的多餘背景，執行 A4 比例裁切（自動 CUT 掉紙外範圍）
+      if (paperPixelCount > 100 && paperMaxX > paperMinX && paperMaxY > paperMinY) {
+        let detectedW = paperMaxX - paperMinX;
+        let detectedH = paperMaxY - paperMinY;
+        const centerX = (paperMinX + paperMaxX) / 2;
+        const centerY = (paperMinY + paperMaxY) / 2;
+
+        // 強制套用 A4 橫向長寬比 (1.414 : 1) 並內縮 3% 安全邊距，徹底切除紙張邊緣黑線或桌面
+        if (detectedW / detectedH > A4_LANDSCAPE_RATIO) {
+          detectedW = detectedH * A4_LANDSCAPE_RATIO;
+        } else {
+          detectedH = detectedW / A4_LANDSCAPE_RATIO;
+        }
+        const safeW = Math.round(detectedW * 0.94);
+        const safeH = Math.round(detectedH * 0.94);
+        const cropX = Math.max(0, Math.round(centerX - safeW / 2));
+        const cropY = Math.max(0, Math.round(centerY - safeH / 2));
+        const finalCropW = Math.min(w - cropX, safeW);
+        const finalCropH = Math.min(h - cropY, safeH);
+
+        if (finalCropW > 60 && finalCropH > 40) {
+          const croppedCanvas = document.createElement('canvas');
+          croppedCanvas.width = finalCropW;
+          croppedCanvas.height = finalCropH;
+          croppedCanvas.getContext('2d').drawImage(canvas, cropX, cropY, finalCropW, finalCropH, 0, 0, finalCropW, finalCropH);
+
+          // 將裁切後的 A4 紙張區域設為新的處理畫布
+          canvas.width = finalCropW;
+          canvas.height = finalCropH;
+          ctx.drawImage(croppedCanvas, 0, 0);
+          w = finalCropW;
+          h = finalCropH;
+          imgData = ctx.getImageData(0, 0, w, h);
+          data = imgData.data;
+        }
+      }
+
+      // 步驟 2：針對已裁切出的 A4 白紙區域進行白平衡校準
       let sampleR = 0, sampleG = 0, sampleB = 0, sampleCount = 0;
-      const margin = Math.max(4, Math.floor(Math.min(w, h) * 0.05));
+      const margin = Math.max(4, Math.floor(Math.min(w, h) * 0.06));
       for (let y = 0; y < h; y += 2) {
         for (let x = 0; x < w; x += 2) {
           if (x < margin || x > w - margin || y < margin || y > h - margin) {
             const idx = (y * w + x) * 4;
             const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-            // 只採樣偏亮的背景紙張像素，排除手指或深色桌面邊緣
-            if (lum > 110) {
-              sampleR += data[idx];
-              sampleG += data[idx + 1];
-              sampleB += data[idx + 2];
+            if (lum > 115) {
+              sampleR += data[idx]; sampleG += data[idx + 1]; sampleB += data[idx + 2];
               sampleCount++;
             }
           }
         }
       }
 
-      // 計算紙張白平衡增益係數（將環境光下的白紙還原為接近 255 的純白）
       const bgR = sampleCount > 0 ? (sampleR / sampleCount) : 235;
       const bgG = sampleCount > 0 ? (sampleG / sampleCount) : 235;
       const bgB = sampleCount > 0 ? (sampleB / sampleCount) : 235;
-      const gainR = Math.min(1.6, 250 / Math.max(120, bgR));
-      const gainG = Math.min(1.6, 250 / Math.max(120, bgG));
-      const gainB = Math.min(1.6, 250 / Math.max(120, bgB));
+      const gainR = Math.min(1.65, 250 / Math.max(120, bgR));
+      const gainG = Math.min(1.65, 250 / Math.max(120, bgG));
+      const gainB = Math.min(1.65, 250 / Math.max(120, bgB));
 
       let minX = w, minY = h, maxX = 0, maxY = 0, hasPixel = false;
 
-      // 步驟 2：逐像素去背與邊緣羽化，並偵測小巴實際邊界 (Bounding Box)
+      // 步驟 3：扣除白紙背景，保留小巴線條與填色
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const i = (y * w + x) * 4;
-          // 套用白平衡校準後的 RGB 值來判斷是否為白紙背景
           const calR = Math.min(255, data[i] * gainR);
           const calG = Math.min(255, data[i + 1] * gainG);
           const calB = Math.min(255, data[i + 2] * gainB);
@@ -452,21 +535,19 @@
           const brightness = 0.299 * calR + 0.587 * calG + 0.114 * calB;
           const maxC = Math.max(calR, calG, calB), minC = Math.min(calR, calG, calB);
           const saturation = maxC === 0 ? 0 : (maxC - minC) / maxC;
-
-          // 色彩越飽和（例如黃色、紅色、綠色蠟筆），越不容易被當成白紙扣除
           const whiteScore = brightness - (saturation * 125);
 
           if (whiteScore >= threshold) {
-            data[i + 3] = 0; // 完全透明
+            data[i + 3] = 0;
           } else if (whiteScore >= threshold - feather) {
-            // 邊緣柔和過渡，消除鋸齒白邊
             data[i + 3] = Math.round(((threshold - whiteScore) / feather) * 255);
           } else {
-            data[i + 3] = 255; // 保留小巴線條與填色
+            data[i + 3] = 255;
           }
 
-          // 記錄有效筆觸的邊界範圍（忽略極細微雜點）
-          if (data[i + 3] > 90) {
+          // 忽略靠近邊界 2% 內的極小雜點，精準鎖定小巴本體邊界
+          const borderGuardX = w * 0.02, borderGuardY = h * 0.02;
+          if (data[i + 3] > 95 && x > borderGuardX && x < w - borderGuardX && y > borderGuardY && y < h - borderGuardY) {
             if (x < minX) minX = x;
             if (x > maxX) maxX = x;
             if (y < minY) minY = y;
@@ -477,19 +558,17 @@
       }
       ctx.putImageData(imgData, 0, 0);
 
-      // 步驟 3：建立與系統預設小巴完全一致的標準畫布 (260 x 150)
+      // 步驟 4：輸出與系統預設小巴完全一致的標準尺寸 (260 x 150)
       const outCanvas = document.createElement('canvas');
       outCanvas.width = STANDARD_BUS_WIDTH;
       outCanvas.height = STANDARD_BUS_HEIGHT;
       const outCtx = outCanvas.getContext('2d');
 
       if (!hasPixel || (maxX - minX < 20) || (maxY - minY < 20)) {
-        // 若畫面幾乎全白，仍等比例縮放至標準尺寸
         outCtx.drawImage(canvas, 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
         return outCanvas.toDataURL('image/png');
       }
 
-      // 裁切出小巴本體，並保留與預設小巴相同的安全邊距 (Padding)
       const pad = 6;
       minX = Math.max(0, minX - pad);
       minY = Math.max(0, minY - pad);
@@ -498,14 +577,12 @@
       const trimW = maxX - minX + 1;
       const trimH = maxY - minY + 1;
 
-      // 預設小巴在 260x150 畫布中的實際繪製有效區域約為 236 x 124 (留邊距對齊車輪底部)
-      const targetBoxW = STANDARD_BUS_WIDTH - 24;   // 236px
-      const targetBoxH = STANDARD_BUS_HEIGHT - 24;  // 126px
+      const targetBoxW = STANDARD_BUS_WIDTH - 24;
+      const targetBoxH = STANDARD_BUS_HEIGHT - 24;
       const scale = Math.min(targetBoxW / trimW, targetBoxH / trimH);
 
       const finalW = Math.round(trimW * scale);
       const finalH = Math.round(trimH * scale);
-      // 水平置中，垂直貼齊車輪底線 (y = 142)，確保行駛時輪胎完美貼合馬路陰影
       const offsetX = Math.round((STANDARD_BUS_WIDTH - finalW) / 2);
       const offsetY = Math.round(142 - finalH);
 
@@ -545,11 +622,16 @@
     }
 
     function spawnInitialDefaultBuses() {
-      const defaults = ['耆康社區號', '長者快樂專線', '匯駿愛心小巴'];
-      defaults.forEach((name, idx) => {
+      // 初始車輛明確分配不同車道與足夠間距，避免重疊
+      const defaults = [
+        { name: '耆康社區號', lane: 'near', progress: 0.05 },
+        { name: '長者快樂專線', lane: 'far', progress: 0.30 },
+        { name: '匯駿愛心小巴', lane: 'near', progress: 0.55 }
+      ];
+      defaults.forEach((item, idx) => {
         activeBuses.push({
-          id: busSeqId++, image: createSystemDefaultBusImage(name), isDefault: true, label: name,
-          enteredAt: Date.now() - (idx * 5000), lane: idx === 1 ? 'far' : 'near', status: 'active', progress: idx * 0.25
+          id: busSeqId++, image: createSystemDefaultBusImage(item.name), isDefault: true, label: item.name,
+          enteredAt: Date.now() - (idx * 5000), lane: item.lane, status: 'active', progress: item.progress
         });
       });
       renderOperatorUI();
@@ -567,13 +649,25 @@
       enqueueBusFromAnySource(createSystemDefaultBusImage(names[Math.floor(Math.random() * names.length)]), false, '模擬參加者');
     }
 
+    // 智慧選擇較空曠的車道，防止車輛在起點重疊
+    function chooseOptimalLane() {
+      const nearBuses = activeBuses.filter(b => b.lane === 'near');
+      const farBuses = activeBuses.filter(b => b.lane === 'far');
+      const nearMinProg = nearBuses.length > 0 ? Math.min(...nearBuses.map(b => b.progress)) : 1.0;
+      const farMinProg = farBuses.length > 0 ? Math.min(...farBuses.map(b => b.progress)) : 1.0;
+      return nearMinProg >= farMinProg ? 'near' : 'far';
+    }
+
     function enqueueBusFromAnySource(imageDataUrl, isDefault = false, label = '參加者作品') {
+      const selectedLane = chooseOptimalLane();
       const newBus = {
         id: busSeqId++, image: imageDataUrl, isDefault: isDefault, label: `${label} #${busSeqId - 1}`,
-        enteredAt: null, lane: Math.random() < 0.45 ? 'far' : 'near', status: 'waiting', progress: 0.0
+        enteredAt: null, lane: selectedLane, status: 'waiting', progress: 0.0
       };
 
-      if (activeBuses.length < MAX_BUSES_ON_STAGE) {
+      // 檢查該車道起點是否有足夠安全車距，若無則先進入等候隊列依序發車
+      const laneHasSpaceAtStart = !activeBuses.some(b => b.lane === selectedLane && b.progress < SAFE_PROGRESS_GAP);
+      if (activeBuses.length < MAX_BUSES_ON_STAGE && laneHasSpaceAtStart) {
         launchBusOntoStage(newBus);
       } else {
         waitingQueue.push(newBus);
@@ -593,12 +687,15 @@
     function evaluateRotationQueue() {
       if (waitingQueue.length === 0) return;
       while (activeBuses.length < MAX_BUSES_ON_STAGE && waitingQueue.length > 0) {
-        const laneType = waitingQueue[0].lane;
-        const tooClose = activeBuses.some(b => b.lane === laneType && b.progress < 0.12);
+        const nextBus = waitingQueue[0];
+        // 重新檢查當前最適合的車道是否有足夠安全距離
+        const bestLane = chooseOptimalLane();
+        const tooClose = activeBuses.some(b => b.lane === bestLane && b.progress < SAFE_PROGRESS_GAP);
         if (!tooClose) {
+          nextBus.lane = bestLane;
           launchBusOntoStage(waitingQueue.shift());
         } else {
-          break;
+          break; // 入口處尚有車輛，等待拉開距離再發車
         }
       }
 
@@ -657,7 +754,7 @@
       const listEl = document.getElementById('op-bus-list');
       listEl.innerHTML = '';
       waitingQueue.forEach((bus, idx) => {
-        listEl.innerHTML += `<div class="bus-row is-waiting"><div style="display:flex;align-items:center;gap:8px;"><img src="${bus.image}"/><div><div style="font-weight:bold;font-size:0.9rem;">${bus.label}</div><div style="font-size:0.76rem;color:#2874a6;">排隊第 ${idx + 1} 位</div></div></div><span class="pill pill-blue">排隊中</span></div>`;
+        listEl.innerHTML += `<div class="bus-row is-waiting"><div style="display:flex;align-items:center;gap:8px;"><img src="${bus.image}"/><div><div style="font-weight:bold;font-size:0.9rem;">${bus.label}</div><div style="font-size:0.76rem;color:#2874a6;">排隊第 ${idx + 1} 位 (依序發車)</div></div></div><span class="pill pill-blue">排隊中</span></div>`;
       });
 
       [...activeBuses].sort((a, b) => a.enteredAt - b.enteredAt).forEach(bus => {
@@ -710,10 +807,9 @@
       const canvas = document.getElementById('offscreen-canvas');
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       let w = mobileRawImage.width, h = mobileRawImage.height;
-      // 提高處理取樣解析度至 800px，保留更細緻的線條邊緣
-      if (w > 800 || h > 800) {
-        if (w > h) { h = Math.round((h / w) * 800); w = 800; }
-        else { w = Math.round((w / h) * 800); h = 800; }
+      if (w > 960 || h > 960) {
+        if (w > h) { h = Math.round((h / w) * 960); w = 960; }
+        else { w = Math.round((w / h) * 960); h = 960; }
       }
       canvas.width = w; canvas.height = h;
       ctx.drawImage(mobileRawImage, 0, 0, w, h);
@@ -733,7 +829,7 @@
       setTimeout(() => { document.getElementById('mobile-send-btn').disabled = false; }, 2000);
     }
 
-    // 城市展示視窗 (Z形軌道與多維景深動畫引擎)
+    // 城市展示視窗 (Z形軌道、防碰撞安全車距與慢速悠遊引擎)
     let tvCanvas, tvCtx;
     let tvBuses = new Map();
     let tvCustomBgImg = null;
@@ -759,7 +855,11 @@
       };
 
       bc.postMessage({ type: 'TV_READY' });
-      setInterval(() => bc.postMessage({ type: 'TV_PING' }), 1000);
+      setInterval(() => {
+        bc.postMessage({ type: 'TV_PING' });
+        const positions = Array.from(tvBuses.values()).map(b => ({ id: b.id, progress: b.progress }));
+        bc.postMessage({ type: 'TV_PROGRESS_SYNC', positions });
+      }, 1000);
       requestAnimationFrame(tvRenderLoop);
     }
 
@@ -792,7 +892,8 @@
       tvBuses.set(busData.id, {
         id: busData.id, img: img, lane: busData.lane,
         scale: isFar ? 0.75 : 1.0,
-        speed: (isFar ? 0.0009 : 0.0013) + Math.random() * 0.0002,
+        // 放慢車速，延長每輛小巴在畫面上的巡遊與展示時間
+        baseSpeed: isFar ? 0.00052 : 0.00072,
         progress: busData.progress || 0.0,
         bouncePhase: Math.random() * Math.PI * 2,
         status: busData.status
@@ -808,7 +909,7 @@
 
       if (progress <= 0.35) {
         const t = progress / 0.35;
-        x = -150 + t * (W * 0.42 + 150);
+        x = -180 + t * (W * 0.42 + 180);
         y = asphaltTop + baseOffsetY;
       } else if (progress <= 0.65) {
         const t = (progress - 0.35) / 0.30;
@@ -816,7 +917,7 @@
         y = (asphaltTop + baseOffsetY) + t * (lane === 'far' ? 35 : 55);
       } else {
         const t = (progress - 0.65) / 0.35;
-        x = W * 0.64 + t * (W * 0.4 + 150);
+        x = W * 0.64 + t * (W * 0.4 + 180);
         y = asphaltTop + baseOffsetY + (lane === 'far' ? 35 : 55);
       }
       return { x, y };
@@ -876,23 +977,47 @@
       tvCtx.strokeStyle = '#f1c40f'; tvCtx.lineWidth = 3;
       tvCtx.beginPath(); tvCtx.moveTo(0, asphaltTop + 7); tvCtx.lineTo(w, asphaltTop + 7); tvCtx.stroke();
 
-      tvBuses.forEach((bus, id) => {
-        bus.progress += bus.speed;
-        bus.bouncePhase += 0.15;
-        const bounceY = Math.sin(bus.bouncePhase) * (2.2 * bus.scale);
+      const allBuses = Array.from(tvBuses.values());
+
+      // 計算每輛車的安全車距與行駛進度（徹底防止同車道小巴重疊）
+      allBuses.forEach((bus) => {
+        let currentSpeed = bus.baseSpeed;
+
+        // 檢查同車道前方是否有其他小巴，若有且距離過近則自動減速跟車
+        for (const other of allBuses) {
+          if (other.id !== bus.id && other.lane === bus.lane) {
+            let gap = other.progress - bus.progress;
+            // 處理循環起終點跨界情況
+            if (gap < -0.5) gap += 1.0;
+            if (gap > 0 && gap < SAFE_PROGRESS_GAP) {
+              // 距離越近減速越多，保持安全間距
+              const factor = Math.max(0.15, (gap / SAFE_PROGRESS_GAP) * 0.6);
+              currentSpeed = Math.min(currentSpeed, bus.baseSpeed * factor);
+            }
+          }
+        }
+
+        bus.progress += currentSpeed;
+        bus.bouncePhase += 0.12;
+        const bounceY = Math.sin(bus.bouncePhase) * (2.0 * bus.scale);
 
         if (bus.progress >= 1.0) {
           if (bus.status === 'retiring') {
-            tvBuses.delete(id);
-            bc.postMessage({ type: 'BUS_EXITED_RIGHT', busId: id });
+            tvBuses.delete(bus.id);
+            bc.postMessage({ type: 'BUS_EXITED_RIGHT', busId: bus.id });
             return;
           } else {
-            bus.progress = 0.0;
+            // 循環回到起點前，確認起點沒有車才能重新進場，避免在起點重疊
+            const blockedAtStart = allBuses.some(o => o.id !== bus.id && o.lane === bus.lane && o.progress < SAFE_PROGRESS_GAP);
+            if (!blockedAtStart) {
+              bus.progress = 0.0;
+            } else {
+              bus.progress = 1.0; // 暫停於畫面右側邊界外等候安全間距
+            }
           }
         }
 
         const pos = getZPathCoordinates(bus.lane, bus.progress, w, h, roadTopY);
-        // 統一使用系統預設小巴的基準顯示高度與比例 (260 : 150)
         const baseH = 135;
         const standardRatio = STANDARD_BUS_WIDTH / STANDARD_BUS_HEIGHT;
         const drawH = baseH * bus.scale;
@@ -902,11 +1027,12 @@
         bus._renderData = { x: pos.x, y: drawY, w: drawW, h: drawH, groundY: pos.y };
       });
 
-      const sortedRenderList = Array.from(tvBuses.values()).sort((a, b) => a._renderData.groundY - b._renderData.groundY);
+      const sortedRenderList = Array.from(tvBuses.values())
+        .filter(b => b._renderData)
+        .sort((a, b) => a._renderData.groundY - b._renderData.groundY);
 
       sortedRenderList.forEach(bus => {
         const rd = bus._renderData;
-        if (!rd) return;
 
         tvCtx.save();
         tvCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
