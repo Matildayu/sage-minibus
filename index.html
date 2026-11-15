@@ -41,8 +41,8 @@
       background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #ffffff;
     }
 
-    /* 工作人員控制面板 */
-    #operator-view { max-width: 1360px; margin: 0 auto; padding: 18px; }
+    /* 工作人員控制面板（預設隱藏，僅 ?mode=admin 顯示） */
+    #operator-view { display: none; max-width: 1360px; margin: 0 auto; padding: 18px; }
     .op-header {
       background: var(--panel-bg); border: 2px solid var(--border-light); border-radius: 14px;
       padding: 14px 22px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px;
@@ -65,7 +65,6 @@
     #qrcode-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; background: #fffdf9; border: 2px dashed var(--primary-orange); border-radius: 12px; min-height: 220px; }
     .warn-local { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; font-size: 0.82rem; line-height: 1.45; }
 
-    /* A4 橫向比例參考框 (1.414 : 1) */
     .cam-wrapper { position: relative; width: 100%; aspect-ratio: 1.414 / 1; background: #1e272e; border-radius: 10px; overflow: hidden; }
     #op-video { width: 100%; height: 100%; object-fit: cover; }
     .cam-guide { position: absolute; inset: 8%; border: 3px dashed #f1c40f; border-radius: 8px; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
@@ -86,10 +85,10 @@
     .pill-red { background: #fadbd8; color: #c0392b; }
     .pill-blue { background: #d6eaf8; color: #2874a6; }
 
-    /* 城市展示視窗 */
-    #display-view { display: none; width: 100vw; height: 100vh; overflow: hidden; position: relative; background: #87ceeb; }
+    /* 城市展示視窗（大電視純全螢幕畫面，完全無操控面板） */
+    #display-view { display: none; width: 100vw; height: 100vh; overflow: hidden; position: fixed; inset: 0; background: #87ceeb; z-index: 10; }
     #city-canvas { display: block; width: 100%; height: 100%; }
-    #tv-floating-bar { position: absolute; top: 14px; right: 18px; opacity: 0; transition: opacity 0.3s; z-index: 20; }
+    #tv-floating-bar { position: absolute; top: 14px; right: 18px; opacity: 0; transition: opacity 0.3s; z-index: 20; display: flex; gap: 8px; }
     #display-view:hover #tv-floating-bar { opacity: 1; }
 
     /* 手機上載頁面 */
@@ -100,7 +99,6 @@
     .mobile-header p { font-size: 0.9rem; color: #5d6d7e; }
     .conn-pill { align-self: center; padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; background: #fef9e7; color: #b7950b; border: 1px solid #f9e79f; }
     .conn-pill.connected { background: #eafaf1; color: #1e8449; border-color: #a9dfbf; }
-    /* 手機預覽區採用 A4 橫向比例 (1.414 : 1) */
     .mobile-preview-area { width: 100%; aspect-ratio: 1.414 / 1; border-radius: 12px; border: 2px dashed #e67e22; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
     #mobile-preview-img { width: 260px; height: 150px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); }
     .mobile-btn-big { width: 100%; padding: 15px; font-size: 1.15rem; border-radius: 12px; }
@@ -108,7 +106,7 @@
 </head>
 <body>
 
-  <!-- 1. 工作人員控制面板 -->
+  <!-- 1. 工作人員控制面板 (僅 ?mode=admin 顯示) -->
   <div id="operator-view">
     <header class="op-header">
       <h1>
@@ -117,7 +115,7 @@
       </h1>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn btn-gray" onclick="spawnSampleUserBus()">🎨 模擬參加者小巴測試</button>
-        <button class="btn btn-orange" onclick="openDisplayWindow()">📺 開啟城市展示視窗 (大電視)</button>
+        <button class="btn btn-orange" onclick="openDisplayWindow()">📺 開啟大電視純畫面視窗</button>
       </div>
     </header>
 
@@ -140,7 +138,7 @@
       <div class="stat-box">
         <div class="title">手機連線接收頻道</div>
         <div class="num" id="stat-peer-status" style="font-size:1.1rem; padding-top:8px;">啟動中...</div>
-        <div class="desc" id="stat-tv-sync">展示視窗：等待開啟</div>
+        <div class="desc" id="stat-tv-sync">大電視畫面：等待開啟</div>
       </div>
     </div>
 
@@ -193,10 +191,11 @@
     </div>
   </div>
 
-  <!-- 2. 城市展示視窗 -->
+  <!-- 2. 城市展示視窗（預設直接全螢幕顯示純淨社區街景，無任何操控版面） -->
   <div id="display-view">
     <canvas id="city-canvas"></canvas>
     <div id="tv-floating-bar">
+      <button class="btn btn-gray" style="opacity:0.85;" onclick="openAdminWindow()">⚙️ 開啟控制中心</button>
       <button class="btn btn-orange" onclick="toggleTVFullscreen()">⛶ 切換全螢幕 (F11)</button>
     </div>
   </div>
@@ -234,20 +233,17 @@
 
   <script>
     const MAX_BUSES_ON_STAGE = 12;
-    // 延長每架參加者小巴在場上的保底展示時間至 5 分鐘 (300秒)
     const MIN_GUARANTEE_MS = 5 * 60 * 1000;
     const SYNC_CHANNEL_NAME = 'sage_minibus_tv_sync_v2';
 
-    // 系統預設小巴標準尺寸 (260x150) 與 A4 紙張長寬比 (1.414 : 1)
     const STANDARD_BUS_WIDTH = 260;
     const STANDARD_BUS_HEIGHT = 150;
     const A4_LANDSCAPE_RATIO = 1.4142;
-
-    // 安全車距參數（防止前後小巴重疊）
     const SAFE_PROGRESS_GAP = 0.16;
 
     const urlParams = new URLSearchParams(window.location.search);
-    const VIEW_MODE = urlParams.get('mode') || 'operator';
+    // 預設模式改為 'display'（大電視純畫面），只有明確傳入 ?mode=admin 或 ?mode=operator 才顯示控制中心
+    const VIEW_MODE = urlParams.get('mode') || 'display';
     const TARGET_HOST_PEER_ID = urlParams.get('host');
 
     const bc = new BroadcastChannel(SYNC_CHANNEL_NAME);
@@ -265,15 +261,16 @@
     let mobileProcessedDataUrl = null;
 
     window.addEventListener('DOMContentLoaded', () => {
-      if (VIEW_MODE === 'display') {
-        document.getElementById('display-view').style.display = 'block';
-        initDisplayWindow();
+      if (VIEW_MODE === 'admin' || VIEW_MODE === 'operator') {
+        document.getElementById('operator-view').style.display = 'block';
+        initOperatorPanel();
       } else if (VIEW_MODE === 'mobile') {
         document.getElementById('mobile-view').style.display = 'flex';
         initMobilePage();
       } else {
-        document.getElementById('operator-view').style.display = 'block';
-        initOperatorPanel();
+        // 預設直接進入大電視純畫面模式，完全隱藏上方控制中心
+        document.getElementById('display-view').style.display = 'block';
+        initDisplayWindow();
       }
     });
 
@@ -293,7 +290,6 @@
         } else if (msg.type === 'BUS_EXITED_RIGHT') {
           onBusExitedRightBoundary(msg.busId);
         } else if (msg.type === 'TV_PROGRESS_SYNC') {
-          // 同步場上車輛最新進度，確保發車時不會與入口車輛重疊
           msg.positions.forEach(p => {
             const found = activeBuses.find(b => b.id === p.id);
             if (found) found.progress = p.progress;
@@ -401,30 +397,32 @@
 
     function openDisplayWindow() {
       const tvUrl = new URL(window.location.href);
-      tvUrl.searchParams.set('mode', 'display');
+      tvUrl.search = ''; // 乾淨主網址即是大電視純畫面
       window.open(tvUrl.toString(), 'SageMinibusDisplayTV', 'width=1280,height=720');
       setTimeout(broadcastFullStateToTV, 600);
+    }
+
+    function openAdminWindow() {
+      const adminUrl = new URL(window.location.href);
+      adminUrl.searchParams.set('mode', 'admin');
+      window.open(adminUrl.toString(), 'SageMinibusAdminPanel', 'width=1360,height=820');
     }
 
     function updateTvConnectionBadge() {
       const el = document.getElementById('stat-tv-sync');
       if (Date.now() - lastTvPing < 3000) {
-        el.innerText = '展示視窗：🟢 同步播放中'; el.style.color = '#27ae60';
+        el.innerText = '大電視畫面：🟢 同步播放中'; el.style.color = '#27ae60';
       } else {
-        el.innerText = '展示視窗：🟡 尚未開啟'; el.style.color = '#7f8c8d';
+        el.innerText = '大電視畫面：🟡 尚未開啟'; el.style.color = '#7f8c8d';
       }
     }
 
-    // =========================================================================
-    // 核心演算法：A4 紙張區域自動偵測與裁切 (自動 CUT 走白紙以外雜物) + 去背標準化
-    // =========================================================================
+    // A4 紙張區域自動偵測裁切 + 去背標準化
     function processWhiteBgRemoval(canvas, ctx, threshold = 210, feather = 28) {
       let w = canvas.width, h = canvas.height;
       let imgData = ctx.getImageData(0, 0, w, h);
       let data = imgData.data;
 
-      // 步驟 1：偵測 A4 白紙區域邊界，自動裁切掉紙張以外的桌面、手指與背景雜物
-      // 計算畫面中央區域的白紙亮度基準
       let centerLumSum = 0, centerCount = 0;
       const cx0 = Math.floor(w * 0.25), cx1 = Math.floor(w * 0.75);
       const cy0 = Math.floor(h * 0.25), cy1 = Math.floor(h * 0.75);
@@ -432,18 +430,13 @@
         for (let x = cx0; x < cx1; x += 3) {
           const i = (y * w + x) * 4;
           const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          if (lum > 135) {
-            centerLumSum += lum;
-            centerCount++;
-          }
+          if (lum > 135) { centerLumSum += lum; centerCount++; }
         }
       }
       const paperBaseLum = centerCount > 0 ? (centerLumSum / centerCount) : 210;
       const paperDetectThresh = Math.max(125, paperBaseLum * 0.68);
 
-      // 掃描找出連通的 A4 紙張最大外接矩形 (Paper Bounding Box)
-      let paperMinX = w, paperMaxX = 0, paperMinY = h, paperMaxY = 0;
-      let paperPixelCount = 0;
+      let paperMinX = w, paperMaxX = 0, paperMinY = h, paperMaxY = 0, paperPixelCount = 0;
       for (let y = 0; y < h; y += 2) {
         for (let x = 0; x < w; x += 2) {
           const i = (y * w + x) * 4;
@@ -451,7 +444,6 @@
           const lum = 0.299 * r + 0.587 * g + 0.114 * b;
           const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
           const sat = maxC === 0 ? 0 : (maxC - minC) / maxC;
-          // 屬於白紙或紙上的彩色填色區域（排除低亮度的深色桌面與陰影背景）
           if (lum >= paperDetectThresh || (lum >= 95 && sat > 0.28)) {
             if (x < paperMinX) paperMinX = x;
             if (x > paperMaxX) paperMaxX = x;
@@ -462,14 +454,12 @@
         }
       }
 
-      // 若成功偵測到紙張且拍到了紙張以外的多餘背景，執行 A4 比例裁切（自動 CUT 掉紙外範圍）
       if (paperPixelCount > 100 && paperMaxX > paperMinX && paperMaxY > paperMinY) {
         let detectedW = paperMaxX - paperMinX;
         let detectedH = paperMaxY - paperMinY;
         const centerX = (paperMinX + paperMaxX) / 2;
         const centerY = (paperMinY + paperMaxY) / 2;
 
-        // 強制套用 A4 橫向長寬比 (1.414 : 1) 並內縮 3% 安全邊距，徹底切除紙張邊緣黑線或桌面
         if (detectedW / detectedH > A4_LANDSCAPE_RATIO) {
           detectedW = detectedH * A4_LANDSCAPE_RATIO;
         } else {
@@ -488,7 +478,6 @@
           croppedCanvas.height = finalCropH;
           croppedCanvas.getContext('2d').drawImage(canvas, cropX, cropY, finalCropW, finalCropH, 0, 0, finalCropW, finalCropH);
 
-          // 將裁切後的 A4 紙張區域設為新的處理畫布
           canvas.width = finalCropW;
           canvas.height = finalCropH;
           ctx.drawImage(croppedCanvas, 0, 0);
@@ -499,7 +488,6 @@
         }
       }
 
-      // 步驟 2：針對已裁切出的 A4 白紙區域進行白平衡校準
       let sampleR = 0, sampleG = 0, sampleB = 0, sampleCount = 0;
       const margin = Math.max(4, Math.floor(Math.min(w, h) * 0.06));
       for (let y = 0; y < h; y += 2) {
@@ -524,7 +512,6 @@
 
       let minX = w, minY = h, maxX = 0, maxY = 0, hasPixel = false;
 
-      // 步驟 3：扣除白紙背景，保留小巴線條與填色
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const i = (y * w + x) * 4;
@@ -545,7 +532,6 @@
             data[i + 3] = 255;
           }
 
-          // 忽略靠近邊界 2% 內的極小雜點，精準鎖定小巴本體邊界
           const borderGuardX = w * 0.02, borderGuardY = h * 0.02;
           if (data[i + 3] > 95 && x > borderGuardX && x < w - borderGuardX && y > borderGuardY && y < h - borderGuardY) {
             if (x < minX) minX = x;
@@ -558,7 +544,6 @@
       }
       ctx.putImageData(imgData, 0, 0);
 
-      // 步驟 4：輸出與系統預設小巴完全一致的標準尺寸 (260 x 150)
       const outCanvas = document.createElement('canvas');
       outCanvas.width = STANDARD_BUS_WIDTH;
       outCanvas.height = STANDARD_BUS_HEIGHT;
@@ -590,7 +575,6 @@
       return outCanvas.toDataURL('image/png');
     }
 
-    // 預設小巴產生 (標準尺寸 260x150)
     function createSystemDefaultBusImage(label) {
       const c = document.createElement('canvas');
       c.width = STANDARD_BUS_WIDTH;
@@ -622,7 +606,6 @@
     }
 
     function spawnInitialDefaultBuses() {
-      // 初始車輛明確分配不同車道與足夠間距，避免重疊
       const defaults = [
         { name: '耆康社區號', lane: 'near', progress: 0.05 },
         { name: '長者快樂專線', lane: 'far', progress: 0.30 },
@@ -649,7 +632,6 @@
       enqueueBusFromAnySource(createSystemDefaultBusImage(names[Math.floor(Math.random() * names.length)]), false, '模擬參加者');
     }
 
-    // 智慧選擇較空曠的車道，防止車輛在起點重疊
     function chooseOptimalLane() {
       const nearBuses = activeBuses.filter(b => b.lane === 'near');
       const farBuses = activeBuses.filter(b => b.lane === 'far');
@@ -665,7 +647,6 @@
         enteredAt: null, lane: selectedLane, status: 'waiting', progress: 0.0
       };
 
-      // 檢查該車道起點是否有足夠安全車距，若無則先進入等候隊列依序發車
       const laneHasSpaceAtStart = !activeBuses.some(b => b.lane === selectedLane && b.progress < SAFE_PROGRESS_GAP);
       if (activeBuses.length < MAX_BUSES_ON_STAGE && laneHasSpaceAtStart) {
         launchBusOntoStage(newBus);
@@ -688,14 +669,13 @@
       if (waitingQueue.length === 0) return;
       while (activeBuses.length < MAX_BUSES_ON_STAGE && waitingQueue.length > 0) {
         const nextBus = waitingQueue[0];
-        // 重新檢查當前最適合的車道是否有足夠安全距離
         const bestLane = chooseOptimalLane();
         const tooClose = activeBuses.some(b => b.lane === bestLane && b.progress < SAFE_PROGRESS_GAP);
         if (!tooClose) {
           nextBus.lane = bestLane;
           launchBusOntoStage(waitingQueue.shift());
         } else {
-          break; // 入口處尚有車輛，等待拉開距離再發車
+          break;
         }
       }
 
@@ -829,7 +809,7 @@
       setTimeout(() => { document.getElementById('mobile-send-btn').disabled = false; }, 2000);
     }
 
-    // 城市展示視窗 (Z形軌道、防碰撞安全車距與慢速悠遊引擎)
+    // 城市展示視窗（大電視純畫面）
     let tvCanvas, tvCtx;
     let tvBuses = new Map();
     let tvCustomBgImg = null;
@@ -844,6 +824,14 @@
       for (let i = 0; i < 6; i++) {
         clouds.push({ x: Math.random() * window.innerWidth, y: 30 + Math.random() * 100, scale: 0.6 + Math.random() * 0.6, speed: 0.2 + Math.random() * 0.2 });
       }
+
+      // 若獨立開啟大電視頁面且尚未收到控制中心同步，先載入3輛預設小巴確保畫面不空白
+      const fallbackDefaults = [
+        { id: 9001, image: createSystemDefaultBusImage('耆康社區號'), lane: 'near', progress: 0.05, status: 'active' },
+        { id: 9002, image: createSystemDefaultBusImage('長者快樂專線'), lane: 'far', progress: 0.30, status: 'active' },
+        { id: 9003, image: createSystemDefaultBusImage('匯駿愛心小巴'), lane: 'near', progress: 0.55, status: 'active' }
+      ];
+      fallbackDefaults.forEach(b => spawnTVBusSprite(b));
 
       bc.onmessage = (e) => {
         const msg = e.data;
@@ -892,7 +880,6 @@
       tvBuses.set(busData.id, {
         id: busData.id, img: img, lane: busData.lane,
         scale: isFar ? 0.75 : 1.0,
-        // 放慢車速，延長每輛小巴在畫面上的巡遊與展示時間
         baseSpeed: isFar ? 0.00052 : 0.00072,
         progress: busData.progress || 0.0,
         bouncePhase: Math.random() * Math.PI * 2,
@@ -979,18 +966,14 @@
 
       const allBuses = Array.from(tvBuses.values());
 
-      // 計算每輛車的安全車距與行駛進度（徹底防止同車道小巴重疊）
       allBuses.forEach((bus) => {
         let currentSpeed = bus.baseSpeed;
 
-        // 檢查同車道前方是否有其他小巴，若有且距離過近則自動減速跟車
         for (const other of allBuses) {
           if (other.id !== bus.id && other.lane === bus.lane) {
             let gap = other.progress - bus.progress;
-            // 處理循環起終點跨界情況
             if (gap < -0.5) gap += 1.0;
             if (gap > 0 && gap < SAFE_PROGRESS_GAP) {
-              // 距離越近減速越多，保持安全間距
               const factor = Math.max(0.15, (gap / SAFE_PROGRESS_GAP) * 0.6);
               currentSpeed = Math.min(currentSpeed, bus.baseSpeed * factor);
             }
@@ -1007,12 +990,11 @@
             bc.postMessage({ type: 'BUS_EXITED_RIGHT', busId: bus.id });
             return;
           } else {
-            // 循環回到起點前，確認起點沒有車才能重新進場，避免在起點重疊
             const blockedAtStart = allBuses.some(o => o.id !== bus.id && o.lane === bus.lane && o.progress < SAFE_PROGRESS_GAP);
             if (!blockedAtStart) {
               bus.progress = 0.0;
             } else {
-              bus.progress = 1.0; // 暫停於畫面右側邊界外等候安全間距
+              bus.progress = 1.0;
             }
           }
         }
