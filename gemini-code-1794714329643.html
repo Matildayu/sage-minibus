@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>耆康黃色小巴遊社區 - 流暢弧形軌道系統</title>
+  <!-- 引入 PeerJS 與 QRCode.js -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg-warm: #fdf8f0;
+      --panel-bg: #ffffff;
+      --primary-orange: #e67e22;
+      --primary-yellow: #f1c40f;
+      --accent-green: #27ae60;
+      --accent-red: #e74c3c;
+      --accent-blue: #2980b9;
+      --text-dark: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-light: #e0d6c8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
+    body { background-color: var(--bg-warm); color: var(--text-dark); overflow-x: hidden; }
+
+    .btn {
+      padding: 10px 16px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: bold;
+      cursor: pointer; transition: transform 0.15s, opacity 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-orange { background: var(--primary-orange); color: #fff; }
+    .btn-green { background: var(--accent-green); color: #fff; }
+    .btn-blue { background: var(--accent-blue); color: #fff; }
+    .btn-red { background: var(--accent-red); color: #fff; }
+    .btn-gray { background: #ecf0f1; color: var(--text-dark); border: 1px solid #bdc3c7; }
+
+    .checkerboard {
+      background-image: linear-gradient(45deg, #e5e5e5 25%, transparent 25%), linear-gradient(-45deg, #e5e5e5 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e5e5 75%), linear-gradient(-45deg, transparent 75%, #e5e5e5 75%);
+      background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #ffffff;
+    }
+
+    /* 工作人員控制面板 */
+    #operator-view { max-width: 1360px; margin: 0 auto; padding: 18px; }
+    .op-header {
+      background: var(--panel-bg); border: 2px solid var(--border-light); border-radius: 14px;
+      padding: 14px 22px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px;
+    }
+    .op-header h1 { font-size: 1.45rem; color: #d35400; display: flex; align-items: center; gap: 10px; }
+    .badge-sage { background: var(--primary-yellow); color: #2c3e50; font-size: 0.85rem; padding: 4px 10px; border-radius: 20px; }
+
+    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .stat-box { background: var(--panel-bg); border: 2px solid var(--border-light); border-radius: 12px; padding: 14px; text-align: center; }
+    .stat-box .title { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 4px; }
+    .stat-box .num { font-size: 1.85rem; font-weight: 800; color: var(--primary-orange); }
+    .stat-box .desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    .op-grid { display: grid; grid-template-columns: 320px 1fr 1.1fr; gap: 18px; }
+    @media (max-width: 1080px) { .op-grid { grid-template-columns: 1fr; } .stats-bar { grid-template-columns: repeat(2, 1fr); } }
+
+    .panel-card { background: var(--panel-bg); border: 2px solid var(--border-light); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .panel-card h2 { font-size: 1.1rem; color: var(--text-dark); border-bottom: 2px solid #f5efe6; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+
+    #qrcode-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; background: #fffdf9; border: 2px dashed var(--primary-orange); border-radius: 12px; min-height: 220px; }
+    .warn-local { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; font-size: 0.82rem; line-height: 1.45; }
+
+    .cam-wrapper { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #1e272e; border-radius: 10px; overflow: hidden; }
+    #op-video { width: 100%; height: 100%; object-fit: cover; }
+    .cam-guide { position: absolute; inset: 12%; border: 3px dashed #f1c40f; border-radius: 10px; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+    .cam-guide span { background: rgba(0,0,0,0.65); color: #fff; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px; }
+
+    .slider-row { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
+    .bus-list { max-height: 460px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .bus-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #faf6f0; border-radius: 10px; border-left: 5px solid var(--accent-green); gap: 8px; }
+    .bus-row.is-default { border-left-color: #95a5a6; }
+    .bus-row.is-protected { border-left-color: var(--primary-orange); }
+    .bus-row.is-retiring { border-left-color: var(--accent-red); opacity: 0.75; }
+    .bus-row.is-waiting { border-left-color: var(--accent-blue); background: #ebf5fb; }
+    .bus-row img { width: 64px; height: 40px; object-fit: contain; background: #fff; border-radius: 6px; border: 1px solid #ddd; }
+    .pill { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; white-space: nowrap; }
+    .pill-orange { background: #fdebd0; color: #d35400; }
+    .pill-green { background: #d4efdf; color: #1e8449; }
+    .pill-gray { background: #eaeded; color: #566573; }
+    .pill-red { background: #fadbd8; color: #c0392b; }
+    .pill-blue { background: #d6eaf8; color: #2874a6; }
+
+    /* 城市展示視窗 */
+    #display-view { display: none; width: 100vw; height: 100vh
