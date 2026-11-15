@@ -42,7 +42,7 @@
     }
 
     /* 工作人員控制面板（僅 ?mode=admin 顯示） */
-    #operator-view { display: none; max-width: 1360px; margin: 0 auto; padding: 18px; }
+    #operator-view { display: none; max-width: 1200px; margin: 0 auto; padding: 18px; }
     .op-header {
       background: var(--panel-bg); border: 2px solid var(--border-light); border-radius: 14px;
       padding: 14px 22px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px;
@@ -56,8 +56,8 @@
     .stat-box .num { font-size: 1.85rem; font-weight: 800; color: var(--primary-orange); }
     .stat-box .desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
 
-    .op-grid { display: grid; grid-template-columns: 320px 1fr 1.1fr; gap: 18px; }
-    @media (max-width: 1080px) { .op-grid { grid-template-columns: 1fr; } .stats-bar { grid-template-columns: repeat(2, 1fr); } }
+    .op-grid { display: grid; grid-template-columns: 380px 1fr; gap: 18px; }
+    @media (max-width: 900px) { .op-grid { grid-template-columns: 1fr; } .stats-bar { grid-template-columns: repeat(2, 1fr); } }
 
     .panel-card { background: var(--panel-bg); border: 2px solid var(--border-light); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
     .panel-card h2 { font-size: 1.1rem; color: var(--text-dark); border-bottom: 2px solid #f5efe6; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
@@ -65,13 +65,8 @@
     #qrcode-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; background: #fffdf9; border: 2px dashed var(--primary-orange); border-radius: 12px; min-height: 220px; }
     .warn-local { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; font-size: 0.82rem; line-height: 1.45; }
 
-    .cam-wrapper { position: relative; width: 100%; aspect-ratio: 1.414 / 1; background: #1e272e; border-radius: 10px; overflow: hidden; }
-    #op-video { width: 100%; height: 100%; object-fit: cover; }
-    .cam-guide { position: absolute; inset: 8%; border: 3px dashed #f1c40f; border-radius: 8px; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
-    .cam-guide span { background: rgba(0,0,0,0.7); color: #fff; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px; }
-
     .slider-row { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
-    .bus-list { max-height: 460px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .bus-list { max-height: 520px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     .bus-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #faf6f0; border-radius: 10px; border-left: 5px solid var(--accent-green); gap: 8px; }
     .bus-row.is-default { border-left-color: #95a5a6; }
     .bus-row.is-protected { border-left-color: var(--primary-orange); }
@@ -144,7 +139,7 @@
 
     <div class="op-grid">
       <div class="panel-card">
-        <h2>📱 1. 手機掃描上載 QR Code</h2>
+        <h2>📱 手機掃描上載 QR Code</h2>
         <div id="qrcode-container">
           <div id="qrcode"></div>
           <div style="margin-top:10px; font-size:0.85rem; font-weight:bold; color:#d35400;">請參加者掃描加入小巴遊社區</div>
@@ -164,26 +159,7 @@
 
       <div class="panel-card">
         <h2>
-          <span>📷 2. 現場工作人員代拍 (A4 紙框)</span>
-          <button class="btn btn-gray" style="padding:4px 10px; font-size:0.8rem;" onclick="initOpCamera()">重啟鏡頭</button>
-        </h2>
-        <div class="cam-wrapper">
-          <video id="op-video" autoplay playsinline muted></video>
-          <div class="cam-guide"><span>請將 A4 白紙小巴對準框內（紙外雜物自動裁切）</span></div>
-        </div>
-        <div class="slider-row">
-          <label style="display:flex; justify-content:space-between;">
-            <span>白紙去背敏感度：</span><strong id="op-thresh-label">210</strong>
-          </label>
-          <input type="range" id="op-thresh" min="150" max="245" value="210" oninput="document.getElementById('op-thresh-label').innerText=this.value" />
-        </div>
-        <button class="btn btn-green" style="width:100%; padding:13px; font-size:1.05rem;" onclick="captureFromOpWebcam()">📸 拍照去背並出發！</button>
-        <div id="op-feedback-msg" style="font-size:0.85rem; color:#d35400; text-align:center; min-height:20px;"></div>
-      </div>
-
-      <div class="panel-card">
-        <h2>
-          <span>🚌 3. 場上與排隊車輛管理 (上限6輛)</span>
+          <span>🚌 場上與排隊車輛管理 (上限6輛)</span>
           <button class="btn btn-red" style="padding:4px 10px; font-size:0.8rem;" onclick="resetToDefaultBuses()">重置車輛</button>
         </h2>
         <div class="bus-list" id="op-bus-list"></div>
@@ -232,15 +208,12 @@
   <canvas id="offscreen-canvas" style="display:none;"></canvas>
 
   <script>
-    // 高峰時間畫面最多只限 6 架小巴出現（遠車道 3 架、近車道 3 架）
     const MAX_BUSES_ON_STAGE = 6;
     const MAX_PER_LANE = 3;
 
-    // 每架小巴最長行駛 5 分鐘 (300秒)；若有人排隊則動態縮短至 2 分鐘 (120秒) 加快輪替
     const MAX_STAY_MS = 5 * 60 * 1000;
     const PEAK_GUARANTEE_MS = 2 * 60 * 1000;
 
-    // 所有小巴行駛速度完全一致，同車道嚴格保持 1/3 軌道 (0.33) 等距防重疊
     const UNIFORM_BUS_SPEED = 0.00055;
     const LANE_SAFE_GAP = 0.33;
 
@@ -280,9 +253,7 @@
       }
     });
 
-    // 工作人員控制面板
     function initOperatorPanel() {
-      initOpCamera();
       setupHostPeerNetwork();
       spawnInitialDefaultBuses();
 
@@ -364,28 +335,6 @@
       navigator.clipboard.writeText(mobileUrl.toString()).then(() => alert('已複製手機上載網址！\n' + mobileUrl.toString()));
     }
 
-    async function initOpCamera() {
-      const video = document.getElementById('op-video');
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 960 }, facingMode: 'environment' }, audio: false });
-        video.srcObject = stream;
-      } catch (err) {
-        document.getElementById('op-feedback-msg').innerText = '⚠️ 未偵測到鏡頭，可使用手機 QR Code 或模擬測試。';
-      }
-    }
-
-    function captureFromOpWebcam() {
-      const video = document.getElementById('op-video');
-      if (!video.videoWidth) { alert('攝影機尚未就緒！'); return; }
-      const canvas = document.getElementById('offscreen-canvas');
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const cleanPng = processWhiteBgRemoval(canvas, ctx, parseInt(document.getElementById('op-thresh').value, 10), 28);
-      enqueueBusFromAnySource(cleanPng, false, '現場代拍');
-    }
-
     function handleCustomBgUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -393,7 +342,6 @@
       reader.onload = (e) => {
         customBgDataUrl = e.target.result;
         bc.postMessage({ type: 'SET_CUSTOM_BG', image: customBgDataUrl });
-        document.getElementById('op-feedback-msg').innerText = '✅ 已更新大電視背景圖片！';
       };
       reader.readAsDataURL(file);
     }
@@ -401,7 +349,6 @@
     function resetDefaultBg() {
       customBgDataUrl = null;
       bc.postMessage({ type: 'SET_CUSTOM_BG', image: null });
-      document.getElementById('op-feedback-msg').innerText = '🔄 已還原預設 Z 形社群街景。';
     }
 
     function openDisplayWindow() {
@@ -414,7 +361,7 @@
     function openAdminWindow() {
       const adminUrl = new URL(window.location.href);
       adminUrl.searchParams.set('mode', 'admin');
-      window.open(adminUrl.toString(), 'SageMinibusAdminPanel', 'width=1360,height=820');
+      window.open(adminUrl.toString(), 'SageMinibusAdminPanel', 'width=1200,height=820');
     }
 
     function updateTvConnectionBadge() {
@@ -514,600 +461,4 @@
 
       const bgR = sampleCount > 0 ? (sampleR / sampleCount) : 235;
       const bgG = sampleCount > 0 ? (sampleG / sampleCount) : 235;
-      const bgB = sampleCount > 0 ? (sampleB / sampleCount) : 235;
-      const gainR = Math.min(1.65, 250 / Math.max(120, bgR));
-      const gainG = Math.min(1.65, 250 / Math.max(120, bgG));
-      const gainB = Math.min(1.65, 250 / Math.max(120, bgB));
-
-      let minX = w, minY = h, maxX = 0, maxY = 0, hasPixel = false;
-
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const i = (y * w + x) * 4;
-          const calR = Math.min(255, data[i] * gainR);
-          const calG = Math.min(255, data[i + 1] * gainG);
-          const calB = Math.min(255, data[i + 2] * gainB);
-
-          const brightness = 0.299 * calR + 0.587 * calG + 0.114 * calB;
-          const maxC = Math.max(calR, calG, calB), minC = Math.min(calR, calG, calB);
-          const saturation = maxC === 0 ? 0 : (maxC - minC) / maxC;
-          const whiteScore = brightness - (saturation * 125);
-
-          if (whiteScore >= threshold) {
-            data[i + 3] = 0;
-          } else if (whiteScore >= threshold - feather) {
-            data[i + 3] = Math.round(((threshold - whiteScore) / feather) * 255);
-          } else {
-            data[i + 3] = 255;
-          }
-
-          const borderGuardX = w * 0.02, borderGuardY = h * 0.02;
-          if (data[i + 3] > 95 && x > borderGuardX && x < w - borderGuardX && y > borderGuardY && y < h - borderGuardY) {
-            if (x < minX) minX = x;
-            if (x > maxX) maxX = x;
-            if (y < minY) minY = y;
-            if (y > maxY) maxY = y;
-            hasPixel = true;
-          }
-        }
-      }
-      ctx.putImageData(imgData, 0, 0);
-
-      const outCanvas = document.createElement('canvas');
-      outCanvas.width = STANDARD_BUS_WIDTH;
-      outCanvas.height = STANDARD_BUS_HEIGHT;
-      const outCtx = outCanvas.getContext('2d');
-
-      if (!hasPixel || (maxX - minX < 20) || (maxY - minY < 20)) {
-        outCtx.drawImage(canvas, 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
-        return outCanvas.toDataURL('image/png');
-      }
-
-      const pad = 6;
-      minX = Math.max(0, minX - pad);
-      minY = Math.max(0, minY - pad);
-      maxX = Math.min(w - 1, maxX + pad);
-      maxY = Math.min(h - 1, maxY + pad);
-      const trimW = maxX - minX + 1;
-      const trimH = maxY - minY + 1;
-
-      const targetBoxW = STANDARD_BUS_WIDTH - 24;
-      const targetBoxH = STANDARD_BUS_HEIGHT - 24;
-      const scale = Math.min(targetBoxW / trimW, targetBoxH / trimH);
-
-      const finalW = Math.round(trimW * scale);
-      const finalH = Math.round(trimH * scale);
-      const offsetX = Math.round((STANDARD_BUS_WIDTH - finalW) / 2);
-      const offsetY = Math.round(142 - finalH);
-
-      outCtx.drawImage(canvas, minX, minY, trimW, trimH, offsetX, offsetY, finalW, finalH);
-      return outCanvas.toDataURL('image/png');
-    }
-
-    function createSystemDefaultBusImage(label) {
-      const c = document.createElement('canvas');
-      c.width = STANDARD_BUS_WIDTH;
-      c.height = STANDARD_BUS_HEIGHT;
-      const ctx = c.getContext('2d');
-      ctx.lineWidth = 4; ctx.strokeStyle = '#34495e';
-
-      ctx.fillStyle = '#f9e79f';
-      ctx.beginPath(); ctx.roundRect(14, 58, 232, 62, [8, 16, 8, 8]); ctx.fill(); ctx.stroke();
-
-      ctx.fillStyle = label.includes('專線') ? '#27ae60' : '#d35400';
-      ctx.beginPath(); ctx.roundRect(22, 20, 212, 42, [16, 26, 0, 0]); ctx.fill(); ctx.stroke();
-
-      ctx.fillStyle = '#f1c40f'; ctx.fillRect(16, 72, 228, 12);
-      ctx.fillStyle = '#d6eaf8';
-      [34, 80, 126, 172].forEach(wx => { ctx.fillRect(wx, 30, 36, 24); ctx.strokeRect(wx, 30, 36, 24); });
-
-      ctx.fillStyle = '#2c3e50'; ctx.fillRect(175, 24, 50, 18);
-      ctx.fillStyle = '#f1c40f'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('耆康線', 200, 37);
-
-      ctx.fillStyle = '#2c3e50'; ctx.font = 'bold 15px sans-serif'; ctx.fillText(label, 125, 106);
-      ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(238, 102, 6, 0, Math.PI * 2); ctx.fill();
-
-      [64, 192].forEach(wx => {
-        ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(wx, 124, 18, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#bdc3c7'; ctx.beginPath(); ctx.arc(wx, 124, 8, 0, Math.PI * 2); ctx.fill();
-      });
-      return c.toDataURL('image/png');
-    }
-
-    function spawnInitialDefaultBuses() {
-      // 遠車道與近車道交錯等距排列，互不重疊、互不遮擋
-      const defaults = [
-        { name: '耆康社區號', lane: 'near', progress: 0.05 },
-        { name: '長者快樂專線', lane: 'far', progress: 0.22 },
-        { name: '匯駿愛心小巴', lane: 'near', progress: 0.45 }
-      ];
-      defaults.forEach((item, idx) => {
-        activeBuses.push({
-          id: busSeqId++, image: createSystemDefaultBusImage(item.name), isDefault: true, label: item.name,
-          enteredAt: Date.now() - (idx * 5000), lane: item.lane, status: 'active', progress: item.progress
-        });
-      });
-      renderOperatorUI();
-      broadcastFullStateToTV();
-    }
-
-    function resetToDefaultBuses() {
-      if (!confirm('確定要重置為預設小巴嗎？')) return;
-      activeBuses = []; waitingQueue = [];
-      spawnInitialDefaultBuses();
-    }
-
-    function spawnSampleUserBus() {
-      const names = ['陳婆婆彩繪車', '李伯伯遊社區', '張姑娘幸福號', '黃叔叔快樂巴'];
-      enqueueBusFromAnySource(createSystemDefaultBusImage(names[Math.floor(Math.random() * names.length)]), false, '模擬參加者');
-    }
-
-    // 智慧選擇可發車的車道（確保每條車道最多 3 架，且入口有足夠安全車距）
-    function chooseAvailableLaneForLaunch() {
-      const nearBuses = activeBuses.filter(b => b.lane === 'near');
-      const farBuses = activeBuses.filter(b => b.lane === 'far');
-
-      const nearCanLaunch = nearBuses.length < MAX_PER_LANE && !nearBuses.some(b => b.progress < LANE_SAFE_GAP);
-      const farCanLaunch = farBuses.length < MAX_PER_LANE && !farBuses.some(b => b.progress < LANE_SAFE_GAP);
-
-      if (nearCanLaunch && farCanLaunch) {
-        // 兩條車道都可發車時，優先選擇車輛較少的車道，保持遠近交替平衡
-        return nearBuses.length <= farBuses.length ? 'near' : 'far';
-      }
-      if (nearCanLaunch) return 'near';
-      if (farCanLaunch) return 'far';
-      return null; // 兩條車道起點目前都尚未拉開安全距離
-    }
-
-    function enqueueBusFromAnySource(imageDataUrl, isDefault = false, label = '參加者作品') {
-      const newBus = {
-        id: busSeqId++, image: imageDataUrl, isDefault: isDefault, label: `${label} #${busSeqId - 1}`,
-        enteredAt: null, lane: 'near', status: 'waiting', progress: 0.0
-      };
-
-      const availableLane = activeBuses.length < MAX_BUSES_ON_STAGE ? chooseAvailableLaneForLaunch() : null;
-      if (availableLane) {
-        newBus.lane = availableLane;
-        launchBusOntoStage(newBus);
-      } else {
-        waitingQueue.push(newBus);
-      }
-      evaluateRotationQueue();
-      renderOperatorUI();
-      broadcastFullStateToTV();
-    }
-
-    function launchBusOntoStage(busObj) {
-      busObj.enteredAt = Date.now();
-      busObj.status = 'active';
-      busObj.progress = 0.0;
-      activeBuses.push(busObj);
-      bc.postMessage({ type: 'TV_SPAWN_BUS', bus: busObj });
-    }
-
-    function evaluateRotationQueue() {
-      const now = Date.now();
-
-      // 1. 檢查場上參加者車輛是否已達最長行駛時間 (5 分鐘)，若已滿 5 分鐘則自動退休離場
-      activeBuses.forEach(bus => {
-        if (!bus.isDefault && bus.status === 'active' && (now - bus.enteredAt >= MAX_STAY_MS)) {
-          bus.status = 'retiring';
-          bc.postMessage({ type: 'TV_MARK_RETIRING', busId: bus.id });
-        }
-      });
-
-      // 2. 若場上未滿 6 輛且有排隊車輛，依安全距離依序交替發車進入遠/近車道
-      while (activeBuses.length < MAX_BUSES_ON_STAGE && waitingQueue.length > 0) {
-        const availableLane = chooseAvailableLaneForLaunch();
-        if (availableLane) {
-          const nextBus = waitingQueue.shift();
-          nextBus.lane = availableLane;
-          launchBusOntoStage(nextBus);
-        } else {
-          break; // 入口處尚有車輛未拉開安全間距，稍候再放行
-        }
-      }
-
-      if (waitingQueue.length === 0) return;
-
-      // 3. 若有人排隊，先退場系統預設小巴；若已無預設小巴，則在尖峰模式下縮短保底時間至 2 分鐘加快輪替
-      const retiringCount = activeBuses.filter(b => b.status === 'retiring').length;
-      const needed = waitingQueue.length - retiringCount;
-      if (needed <= 0) return;
-
-      let marked = 0;
-      const defaultCandidates = activeBuses.filter(b => b.status === 'active' && b.isDefault);
-      for (const defBus of defaultCandidates) {
-        if (marked >= needed) break;
-        defBus.status = 'retiring'; marked++;
-        bc.postMessage({ type: 'TV_MARK_RETIRING', busId: defBus.id });
-      }
-
-      if (marked >= needed) return;
-
-      // 排隊人數越多，在場保底時間動態縮短（有人排隊時縮短至 2 分鐘，加快消化排隊）
-      const dynamicGuaranteeMs = waitingQueue.length > 0 ? PEAK_GUARANTEE_MS : MAX_STAY_MS;
-      const userCandidates = activeBuses
-        .filter(b => b.status === 'active' && !b.isDefault)
-        .sort((a, b) => a.enteredAt - b.enteredAt);
-
-      for (const uBus of userCandidates) {
-        if (marked >= needed) break;
-        if (now - uBus.enteredAt >= dynamicGuaranteeMs) {
-          uBus.status = 'retiring'; marked++;
-          bc.postMessage({ type: 'TV_MARK_RETIRING', busId: uBus.id });
-        } else {
-          break;
-        }
-      }
-    }
-
-    function onBusExitedRightBoundary(busId) {
-      const idx = activeBuses.findIndex(b => b.id === busId);
-      if (idx !== -1) activeBuses.splice(idx, 1);
-      evaluateRotationQueue();
-      renderOperatorUI();
-      broadcastFullStateToTV();
-    }
-
-    function manualRemoveBus(busId) {
-      const idx = activeBuses.findIndex(b => b.id === busId);
-      if (idx !== -1) {
-        activeBuses.splice(idx, 1);
-        bc.postMessage({ type: 'TV_REMOVE_BUS', busId: busId });
-        evaluateRotationQueue();
-        renderOperatorUI();
-        broadcastFullStateToTV();
-      }
-    }
-
-    function broadcastFullStateToTV() {
-      bc.postMessage({ type: 'TV_FULL_SYNC', buses: activeBuses, customBg: customBgDataUrl });
-    }
-
-    function renderOperatorUI() {
-      document.getElementById('stat-active').innerText = activeBuses.length;
-      document.getElementById('stat-queue').innerText = waitingQueue.length;
-      const now = Date.now();
-      const userBuses = activeBuses.filter(b => !b.isDefault);
-      let oldestMs = userBuses.length > 0 ? Math.max(0, now - userBuses.reduce((a, b) => a.enteredAt < b.enteredAt ? a : b).enteredAt) : 0;
-      document.getElementById('stat-oldest').innerText = formatMMSS(oldestMs);
-
-      const guaranteeDesc = document.getElementById('stat-guarantee-desc');
-      if (waitingQueue.length > 0) {
-        guaranteeDesc.innerText = '🔥 排隊加速模式：滿 02:00 即輪替';
-        guaranteeDesc.style.color = '#d35400';
-      } else {
-        guaranteeDesc.innerText = '最長行駛 05:00（排隊自動縮短）';
-        guaranteeDesc.style.color = '#7f8c8d';
-      }
-
-      const listEl = document.getElementById('op-bus-list');
-      listEl.innerHTML = '';
-      waitingQueue.forEach((bus, idx) => {
-        listEl.innerHTML += `<div class="bus-row is-waiting"><div style="display:flex;align-items:center;gap:8px;"><img src="${bus.image}"/><div><div style="font-weight:bold;font-size:0.9rem;">${bus.label}</div><div style="font-size:0.76rem;color:#2874a6;">排隊第 ${idx + 1} 位 (等安全車距發車)</div></div></div><span class="pill pill-blue">排隊中</span></div>`;
-      });
-
-      const currentGuaranteeMs = waitingQueue.length > 0 ? PEAK_GUARANTEE_MS : MAX_STAY_MS;
-      [...activeBuses].sort((a, b) => a.enteredAt - b.enteredAt).forEach(bus => {
-        const elapsed = now - bus.enteredAt;
-        const isProtected = !bus.isDefault && elapsed < currentGuaranteeMs;
-        let pClass = bus.status === 'retiring' ? 'pill pill-red' : (bus.isDefault ? 'pill pill-gray' : (isProtected ? 'pill pill-orange' : 'pill pill-green'));
-        let pText = bus.status === 'retiring' ? '即將離場' : (bus.isDefault ? '系統預設' : (isProtected ? `展示中 (${formatMMSS(currentGuaranteeMs - elapsed)})` : '可輪替'));
-        listEl.innerHTML += `<div class="bus-row ${bus.status === 'retiring' ? 'is-retiring' : (isProtected ? 'is-protected' : '')}"><div style="display:flex;align-items:center;gap:8px;"><img src="${bus.image}"/><div><div style="font-weight:bold;font-size:0.9rem;">${bus.label}</div><div style="font-size:0.76rem;color:#7f8c8d;">${bus.lane === 'far' ? '遠車道 (上方)' : '近車道 (下方)'}・遠近交替</div></div></div><div style="display:flex;align-items:center;gap:6px;"><span class="${pClass}">${pText}</span><button class="btn btn-gray" style="padding:3px 7px;font-size:0.75rem;" onclick="manualRemoveBus(${bus.id})">✕</button></div></div>`;
-      });
-    }
-
-    function formatMMSS(ms) {
-      const sec = Math.max(0, Math.floor(ms / 1000));
-      return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
-    }
-
-    // 手機上載端
-    function initMobilePage() {
-      const statusBadge = document.getElementById('mobile-conn-status');
-      if (!TARGET_HOST_PEER_ID || TARGET_HOST_PEER_ID === 'offline') {
-        statusBadge.innerText = '⚠️ 尚未連接大電視主機'; return;
-      }
-      peer = new Peer();
-      peer.on('open', () => {
-        mobileConn = peer.connect(TARGET_HOST_PEER_ID, { reliable: true });
-        mobileConn.on('open', () => { statusBadge.innerText = '🟢 已連線至大電視！'; statusBadge.classList.add('connected'); });
-        mobileConn.on('data', (res) => {
-          if (res && res.type === 'UPLOAD_ACK') {
-            document.getElementById('mobile-status-msg').innerText = res.queuePos > 0 ? `🎉 送出成功！前面有 ${res.queuePos} 位排隊中` : '🎉 送出成功！車輛已出發！';
-          }
-        });
-      });
-    }
-
-    function handleMobileFileSelect(event) {
-      const file = event.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => { mobileRawImage = img; document.getElementById('mobile-slider-box').style.display = 'flex'; reprocessMobileImage(); };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function reprocessMobileImage() {
-      if (!mobileRawImage) return;
-      const thresh = parseInt(document.getElementById('mobile-thresh').value, 10);
-      document.getElementById('mobile-thresh-label').innerText = thresh;
-      const canvas = document.getElementById('offscreen-canvas');
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      let w = mobileRawImage.width, h = mobileRawImage.height;
-      if (w > 960 || h > 960) {
-        if (w > h) { h = Math.round((h / w) * 960); w = 960; }
-        else { w = Math.round((w / h) * 960); h = 960; }
-      }
-      canvas.width = w; canvas.height = h;
-      ctx.drawImage(mobileRawImage, 0, 0, w, h);
-
-      mobileProcessedDataUrl = processWhiteBgRemoval(canvas, ctx, thresh, 28);
-      const preview = document.getElementById('mobile-preview-img');
-      preview.src = mobileProcessedDataUrl; preview.style.display = 'block';
-      document.getElementById('mobile-preview-hint').style.display = 'none';
-      document.getElementById('mobile-send-btn').disabled = false;
-    }
-
-    function sendMobileBusToHost() {
-      if (!mobileProcessedDataUrl || !mobileConn || !mobileConn.open) { alert('尚未連線到大電視主機！'); return; }
-      document.getElementById('mobile-send-btn').disabled = true;
-      document.getElementById('mobile-status-msg').innerText = '⏳ 正在傳送至大電視...';
-      mobileConn.send({ type: 'MOBILE_UPLOAD_BUS', image: mobileProcessedDataUrl, sender: '手機參加者' });
-      setTimeout(() => { document.getElementById('mobile-send-btn').disabled = false; }, 2000);
-    }
-
-    // 城市展示視窗（等速、不重疊、近車道不遮擋遠車道、遠近公平交替）
-    let tvCanvas, tvCtx;
-    let tvBuses = new Map();
-    let tvCustomBgImg = null;
-    let clouds = [];
-
-    function initDisplayWindow() {
-      tvCanvas = document.getElementById('city-canvas');
-      tvCtx = tvCanvas.getContext('2d');
-      resizeTVCanvas();
-      window.addEventListener('resize', resizeTVCanvas);
-
-      for (let i = 0; i < 6; i++) {
-        clouds.push({ x: Math.random() * window.innerWidth, y: 30 + Math.random() * 100, scale: 0.6 + Math.random() * 0.6, speed: 0.2 + Math.random() * 0.2 });
-      }
-
-      const fallbackDefaults = [
-        { id: 9001, image: createSystemDefaultBusImage('耆康社區號'), lane: 'near', progress: 0.05, status: 'active' },
-        { id: 9002, image: createSystemDefaultBusImage('長者快樂專線'), lane: 'far', progress: 0.22, status: 'active' },
-        { id: 9003, image: createSystemDefaultBusImage('匯駿愛心小巴'), lane: 'near', progress: 0.45, status: 'active' }
-      ];
-      fallbackDefaults.forEach(b => spawnTVBusSprite(b));
-
-      bc.onmessage = (e) => {
-        const msg = e.data;
-        if (msg.type === 'TV_FULL_SYNC') { syncTVBuses(msg.buses); applyTVCustomBg(msg.customBg); }
-        else if (msg.type === 'TV_SPAWN_BUS') { spawnTVBusSprite(msg.bus); }
-        else if (msg.type === 'TV_MARK_RETIRING') { const ent = tvBuses.get(msg.busId); if (ent) ent.status = 'retiring'; }
-        else if (msg.type === 'TV_REMOVE_BUS') { tvBuses.delete(msg.busId); }
-        else if (msg.type === 'SET_CUSTOM_BG') { applyTVCustomBg(msg.image); }
-      };
-
-      bc.postMessage({ type: 'TV_READY' });
-      setInterval(() => {
-        bc.postMessage({ type: 'TV_PING' });
-        const busesState = Array.from(tvBuses.values()).map(b => ({ id: b.id, progress: b.progress, lane: b.lane }));
-        bc.postMessage({ type: 'TV_STATE_SYNC', buses: busesState });
-      }, 1000);
-      requestAnimationFrame(tvRenderLoop);
-    }
-
-    function toggleTVFullscreen() {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-      else document.exitFullscreen().catch(() => {});
-    }
-
-    function resizeTVCanvas() { tvCanvas.width = window.innerWidth; tvCanvas.height = window.innerHeight; }
-    function applyTVCustomBg(dataUrl) {
-      if (!dataUrl) { tvCustomBgImg = null; return; }
-      const img = new Image(); img.onload = () => { tvCustomBgImg = img; }; img.src = dataUrl;
-    }
-
-    function syncTVBuses(busArray) {
-      const validIds = new Set(busArray.map(b => b.id));
-      for (const id of tvBuses.keys()) if (!validIds.has(id)) tvBuses.delete(id);
-      busArray.forEach(b => {
-        if (!tvBuses.has(b.id)) {
-          spawnTVBusSprite(b);
-        } else {
-          tvBuses.get(b.id).status = b.status;
-        }
-      });
-    }
-
-    function spawnTVBusSprite(busData) {
-      const img = new Image(); img.src = busData.image;
-      const isFar = busData.lane === 'far';
-      tvBuses.set(busData.id, {
-        id: busData.id, img: img, lane: busData.lane,
-        scale: isFar ? 0.78 : 0.96,
-        progress: busData.progress || 0.0,
-        bouncePhase: Math.random() * Math.PI * 2,
-        status: busData.status,
-        waitingAtStart: false
-      });
-    }
-
-    // 雙車道垂直充分分離設計：遠車道在上方 (24%)，近車道在下方 (86%)，近車道絕不遮擋遠車道車身
-    function getZPathCoordinates(lane, progress, W, H, roadTopY) {
-      const asphaltTop = roadTopY + H * 0.03;
-      const asphaltH = H - asphaltTop;
-
-      let x, y;
-      const baseOffsetY = lane === 'far' ? asphaltH * 0.24 : asphaltH * 0.84;
-      const zShiftY = lane === 'far' ? 18 : 26;
-
-      if (progress <= 0.35) {
-        const t = progress / 0.35;
-        x = -220 + t * (W * 0.42 + 220);
-        y = asphaltTop + baseOffsetY;
-      } else if (progress <= 0.65) {
-        const t = (progress - 0.35) / 0.30;
-        x = W * 0.42 + t * (W * 0.22);
-        y = (asphaltTop + baseOffsetY) + t * zShiftY;
-      } else {
-        const t = (progress - 0.65) / 0.35;
-        x = W * 0.64 + t * (W * 0.4 + 220);
-        y = asphaltTop + baseOffsetY + zShiftY;
-      }
-      return { x, y };
-    }
-
-    function drawCommunityBackground(w, h, roadTopY) {
-      const skyGrad = tvCtx.createLinearGradient(0, 0, 0, roadTopY);
-      skyGrad.addColorStop(0, '#a8e6cf'); skyGrad.addColorStop(0.5, '#dcedc1'); skyGrad.addColorStop(1, '#fff9db');
-      tvCtx.fillStyle = skyGrad; tvCtx.fillRect(0, 0, w, roadTopY);
-
-      tvCtx.fillStyle = '#f1c40f'; tvCtx.beginPath(); tvCtx.arc(w * 0.9, h * 0.13, 42, 0, Math.PI * 2); tvCtx.fill();
-      clouds.forEach(c => {
-        c.x += c.speed; if (c.x > w + 120) c.x = -120;
-        tvCtx.save(); tvCtx.translate(c.x, c.y); tvCtx.scale(c.scale, c.scale);
-        tvCtx.fillStyle = 'rgba(255,255,255,0.85)'; tvCtx.beginPath();
-        tvCtx.arc(0, 0, 26, 0, Math.PI*2); tvCtx.arc(24, -8, 32, 0, Math.PI*2); tvCtx.arc(54, 0, 25, 0, Math.PI*2); tvCtx.fill();
-        tvCtx.restore();
-      });
-
-      const centers = [
-        { name: '長者地區中心', color: '#fadbd8', roof: '#e74c3c', signBg: '#c0392b' },
-        { name: '鄰舍中心',     color: '#fdebd0', roof: '#e67e22', signBg: '#d35400' },
-        { name: '日間護理中心', color: '#d4efdf', roof: '#27ae60', signBg: '#1e8449' },
-        { name: '護理安老院',   color: '#d6eaf8', roof: '#2980b9', signBg: '#1f618d' },
-        { name: '飛躍天地',     color: '#fcf3cf', roof: '#f1c40f', signBg: '#d68910' },
-        { name: '陳登匯駿天地', color: '#ebdef0', roof: '#8e44ad', signBg: '#6c3483' }
-      ];
-
-      const slotW = w / centers.length;
-      centers.forEach((unit, idx) => {
-        const cx = slotW * idx + slotW * 0.5, bW = Math.min(slotW * 0.72, 165), bH = h * 0.23, bX = cx - bW / 2, bY = roadTopY - bH;
-        tvCtx.lineWidth = 3.5; tvCtx.strokeStyle = '#34495e'; tvCtx.fillStyle = unit.color;
-        tvCtx.beginPath(); tvCtx.roundRect(bX, bY, bW, bH, [10, 10, 0, 0]); tvCtx.fill(); tvCtx.stroke();
-
-        tvCtx.fillStyle = unit.roof; tvCtx.beginPath(); tvCtx.roundRect(bX - 6, bY - 12, bW + 12, 18, 8); tvCtx.fill(); tvCtx.stroke();
-
-        tvCtx.fillStyle = unit.signBg; tvCtx.beginPath(); tvCtx.roundRect(cx - 55, bY + 12, 110, 28, 8); tvCtx.fill(); tvCtx.stroke();
-        tvCtx.fillStyle = '#fff'; tvCtx.font = 'bold 15px sans-serif'; tvCtx.textAlign = 'center'; tvCtx.fillText(unit.name, cx, bY + 31);
-      });
-    }
-
-    function tvRenderLoop() {
-      const w = tvCanvas.width, h = tvCanvas.height;
-      // 略微提高馬路上緣，給予上下兩條車道更寬敞的垂直空間，使近車道完全不會擋住遠車道車身
-      const roadTopY = h * 0.56, sidewalkH = h * 0.03, asphaltTop = roadTopY + sidewalkH, asphaltH = h - asphaltTop;
-
-      tvCtx.clearRect(0, 0, w, h);
-
-      if (tvCustomBgImg) {
-        tvCtx.drawImage(tvCustomBgImg, 0, 0, w, roadTopY);
-      } else {
-        drawCommunityBackground(w, h, roadTopY);
-      }
-
-      tvCtx.fillStyle = '#d5dbdb'; tvCtx.fillRect(0, roadTopY, w, sidewalkH);
-      tvCtx.fillStyle = '#34495e'; tvCtx.fillRect(0, asphaltTop, w, asphaltH);
-
-      // 繪製分隔遠近車道的虛線標線
-      tvCtx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-      tvCtx.lineWidth = 3;
-      tvCtx.setLineDash([24, 18]);
-      tvCtx.beginPath();
-      tvCtx.moveTo(0, asphaltTop + asphaltH * 0.48);
-      tvCtx.lineTo(w, asphaltTop + asphaltH * 0.48);
-      tvCtx.stroke();
-      tvCtx.setLineDash([]);
-
-      tvCtx.strokeStyle = '#f1c40f'; tvCtx.lineWidth = 3;
-      tvCtx.beginPath(); tvCtx.moveTo(0, asphaltTop + 6); tvCtx.lineTo(w, asphaltTop + 6); tvCtx.stroke();
-
-      const allBuses = Array.from(tvBuses.values());
-
-      allBuses.forEach((bus) => {
-        if (bus.waitingAtStart) {
-          // 正在左側起點外等待安全車距：確認目標車道前段 33% 內完全無車，且該車道少於 3 輛才進場
-          const targetLaneBuses = allBuses.filter(o => o.id !== bus.id && !o.waitingAtStart && o.lane === bus.lane);
-          const hasSpace = targetLaneBuses.length < MAX_PER_LANE && !targetLaneBuses.some(o => o.progress < LANE_SAFE_GAP);
-          if (hasSpace) {
-            bus.waitingAtStart = false;
-            bus.progress = 0.0;
-          } else {
-            bus._renderData = null;
-            return;
-          }
-        }
-
-        // 所有小巴行駛速度完全一致 (UNIFORM_BUS_SPEED)，若前方有車過近則保持等速安全距離
-        let currentSpeed = UNIFORM_BUS_SPEED;
-        for (const other of allBuses) {
-          if (other.id !== bus.id && !other.waitingAtStart && other.lane === bus.lane) {
-            const gap = other.progress - bus.progress;
-            if (gap > 0 && gap < LANE_SAFE_GAP) {
-              currentSpeed = 0; // 保持固定安全車距，絕不追撞重疊
-              break;
-            }
-          }
-        }
-
-        bus.progress += currentSpeed;
-        bus.bouncePhase += 0.12;
-        const bounceY = Math.sin(bus.bouncePhase) * (1.8 * bus.scale);
-
-        if (bus.progress >= 1.0) {
-          if (bus.status === 'retiring') {
-            tvBuses.delete(bus.id);
-            bc.postMessage({ type: 'BUS_EXITED_RIGHT', busId: bus.id });
-            return;
-          } else {
-            // 公平交替機制：每跑完一趟，自動切換到另一條車道（遠 <-> 近交替出現）
-            const nextLane = bus.lane === 'near' ? 'far' : 'near';
-            bus.lane = nextLane;
-            bus.scale = nextLane === 'far' ? 0.78 : 0.96;
-            bus.progress = 0.0;
-            bus.waitingAtStart = true; // 在左側起點外等候安全間距再進場
-            bus._renderData = null;
-            return;
-          }
-        }
-
-        const pos = getZPathCoordinates(bus.lane, bus.progress, w, h, roadTopY);
-        const baseH = 128;
-        const standardRatio = STANDARD_BUS_WIDTH / STANDARD_BUS_HEIGHT;
-        const drawH = baseH * bus.scale;
-        const drawW = drawH * standardRatio;
-        const drawY = pos.y - drawH + bounceY;
-
-        bus._renderData = { x: pos.x, y: drawY, w: drawW, h: drawH, groundY: pos.y };
-      });
-
-      const sortedRenderList = Array.from(tvBuses.values())
-        .filter(b => b._renderData)
-        .sort((a, b) => a._renderData.groundY - b._renderData.groundY);
-
-      sortedRenderList.forEach(bus => {
-        const rd = bus._renderData;
-
-        tvCtx.save();
-        tvCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        tvCtx.beginPath();
-        tvCtx.ellipse(rd.x + rd.w * 0.5, rd.groundY - 2, rd.w * 0.42, 7 * bus.scale, 0, 0, Math.PI * 2);
-        tvCtx.fill();
-
-        if (bus.img.complete && bus.img.naturalWidth > 0) {
-          tvCtx.drawImage(bus.img, rd.x, rd.y, rd.w, rd.h);
-        }
-        tvCtx.restore();
-      });
-
-      requestAnimationFrame(tvRenderLoop);
-    }
-  </script>
-</body>
-</html>
+      const bgB = sampleCount > 0 ? (sampleB / sampleCount)
