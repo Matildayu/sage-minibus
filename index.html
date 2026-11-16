@@ -92,8 +92,10 @@
     .mobile-header { text-align: center; }
     .mobile-header h1 { font-size: 1.45rem; color: #d35400; margin-bottom: 4px; }
     .mobile-header p { font-size: 0.92rem; color: #5d6d7e; }
-    .conn-pill { align-self: center; padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; background: #fef9e7; color: #b7950b; border: 1px solid #f9e79f; }
+    .conn-bar { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .conn-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; background: #fef9e7; color: #b7950b; border: 1px solid #f9e79f; }
     .conn-pill.connected { background: #eafaf1; color: #1e8449; border-color: #a9dfbf; }
+    .conn-pill.error { background: #fdedec; color: #c0392b; border-color: #f5b7b1; }
 
     .mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #faf6f0; padding: 5px; border-radius: 12px; border: 1px solid #e0d6c8; }
     .tab-btn { padding: 10px; border: none; border-radius: 9px; font-size: 0.98rem; font-weight: bold; cursor: pointer; background: transparent; color: #7f8c8d; transition: all 0.2s; }
@@ -130,7 +132,8 @@
         《耆康黃色小巴遊社區》Z形車道控制中心
       </h1>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-gray" onclick="spawnSampleUserBus()">🎨 模擬參加者小巴測試</button>
+        <button class="btn btn-blue" onclick="openLocalPadWindow()">📱 開啟現場平板填色視窗</button>
+        <button class="btn btn-gray" onclick="spawnSampleUserBus()">🎨 模擬小巴測試</button>
         <button class="btn btn-orange" onclick="openDisplayWindow()">📺 開啟大電視純畫面視窗</button>
       </div>
     </header>
@@ -164,9 +167,10 @@
         <div id="qrcode-container">
           <div id="qrcode"></div>
           <div style="margin-top:10px; font-size:0.85rem; font-weight:bold; color:#d35400;">掃描即可線上點選填色或上載畫作</div>
+          <div id="room-id-badge" style="margin-top:4px; font-size:0.75rem; color:#7f8c8d;">頻道房號：連線中...</div>
         </div>
         <div id="local-file-warning" class="warn-local" style="display:none;">
-          ⚠️ <strong>本機檔案提示：</strong>以本機檔案開啟時手機無法連線。請上傳至 Netlify Drop 或 GitHub Pages 產生正式網址！
+          ⚠️ <strong>本機檔案提示：</strong>以本機檔案開啟時手機無法跨網連線。請上傳至 GitHub Pages 或 Netlify 產生正式網址！
         </div>
         <button class="btn btn-gray" style="width:100%; font-size:0.85rem;" onclick="copyMobileUrl()">🔗 複製參加者頁面網址</button>
 
@@ -204,7 +208,11 @@
         <h1>🚌 耆康黃色小巴遊社區</h1>
         <p>點選顏色再輕觸小巴部位即可填色，或上載你的畫作！</p>
       </div>
-      <div id="mobile-conn-status" class="conn-pill">⏳ 正在連線至大電視系統...</div>
+
+      <div class="conn-bar">
+        <div id="mobile-conn-status" class="conn-pill">⏳ 正在連線至大電視系統...</div>
+        <button id="mobile-retry-btn" class="btn btn-gray" style="padding:5px 10px; font-size:0.8rem; display:none;" onclick="reconnectMobilePeer()">🔄 重新連線</button>
+      </div>
 
       <!-- 模式切換分頁 -->
       <div class="mode-tabs">
@@ -212,32 +220,23 @@
         <button id="tab-upload" class="tab-btn" onclick="switchMobileTab('upload')">📤 上載自訂畫作</button>
       </div>
 
-      <!-- 分頁 A：點選區域填色（長者友善免畫筆設計） -->
+      <!-- 分頁 A：點選區域填色 -->
       <div id="panel-coloring" style="display:flex; flex-direction:column; gap:10px;">
         <div class="coloring-stage">
           <div style="font-size:0.86rem; color:#d35400; font-weight:bold;">👇 先選下方顏色，再點一下小巴任何部位！</div>
-          <!-- 互動式 SVG 小巴 -->
           <svg id="bus-svg-editor" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
-            <!-- 車頂 -->
             <path id="part-roof" class="bus-part" d="M 38 20 L 208 20 Q 234 20 234 46 L 234 62 L 22 62 L 22 36 Q 22 20 38 20 Z" fill="#d35400" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-roof')"/>
-            <!-- 下半車身主體 -->
             <path id="part-body" class="bus-part" d="M 22 58 L 238 58 Q 246 58 246 74 L 246 112 Q 246 120 238 120 L 22 120 Q 14 120 14 112 L 14 66 Q 14 58 22 58 Z" fill="#f9e79f" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-body')"/>
-            <!-- 經典腰帶色帶 -->
             <rect id="part-stripe" class="bus-part" x="16" y="72" width="228" height="13" fill="#f1c40f" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-stripe')"/>
-            <!-- 四扇車窗 -->
             <rect id="part-win1" class="bus-part" x="32" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win1')"/>
             <rect id="part-win2" class="bus-part" x="76" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win2')"/>
             <rect id="part-win3" class="bus-part" x="120" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win3')"/>
             <rect id="part-win4" class="bus-part" x="164" y="29" width="24" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win4')"/>
-            <!-- 車頭路線牌 -->
             <rect id="part-sign" class="bus-part" x="193" y="25" width="36" height="20" rx="4" fill="#2c3e50" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-sign')"/>
             <text x="211" y="39" font-size="9.5" font-weight="bold" fill="#f1c40f" text-anchor="middle" pointer-events="none">耆康線</text>
-            <!-- 車身文字標語 -->
             <text id="svg-bus-label" x="130" y="106" font-size="14.5" font-weight="bold" fill="#2c3e50" text-anchor="middle" pointer-events="none">耆康社區號</text>
-            <!-- 車頭大燈與車尾燈 -->
             <circle id="part-headlight" class="bus-part" cx="238" cy="102" r="6.5" fill="#f39c12" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-headlight')"/>
             <circle id="part-taillight" class="bus-part" cx="21" cy="102" r="5.5" fill="#e74c3c" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-taillight')"/>
-            <!-- 前後車輪 -->
             <g class="bus-part" onclick="paintBusPart('part-wheel-front')">
               <circle id="part-wheel-front" cx="192" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
               <circle cx="192" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
@@ -248,10 +247,8 @@
             </g>
           </svg>
 
-          <!-- 12色大按鈕調色盤 -->
           <div class="palette-grid" id="color-palette"></div>
 
-          <!-- 車身標語選擇 & 快捷操作 -->
           <div class="label-selector">
             <span>🏷️ 車身路線：</span>
             <select id="bus-label-select" onchange="updateSvgBusLabel(this.value)">
@@ -270,7 +267,7 @@
         </div>
       </div>
 
-      <!-- 分頁 B：自行上載畫作（相簿選圖或拍照自動去背） -->
+      <!-- 分頁 B：自行上載畫作 -->
       <div id="panel-upload" style="display:none; flex-direction:column; gap:10px;">
         <input type="file" id="mobile-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handleMobileFileSelect(event)" />
         <input type="file" id="mobile-album-input" accept="image/*" style="display:none;" onchange="handleMobileFileSelect(event)" />
@@ -298,26 +295,49 @@
   <canvas id="offscreen-canvas" style="display:none;"></canvas>
 
   <script>
-    // 高峰時間畫面最多只限 6 架小巴出現（遠車道 3 架、近車道 3 架）
     const MAX_BUSES_ON_STAGE = 6;
     const MAX_PER_LANE = 3;
-
-    // 每架小巴最長行駛 5 分鐘 (300秒)；若有人排隊則動態縮短至 2 分鐘 (120秒) 加快輪替
     const MAX_STAY_MS = 5 * 60 * 1000;
     const PEAK_GUARANTEE_MS = 2 * 60 * 1000;
-
-    // 所有小巴行駛速度完全一致，同車道嚴格保持 1/3 軌道 (0.33) 等距防重疊
     const UNIFORM_BUS_SPEED = 0.00055;
     const LANE_SAFE_GAP = 0.33;
 
+    // 固定房號前綴，確保重新整理後手機仍可自動重連
+    const FIXED_HOST_ROOM_ID = 'sage-hk-minibus-host-2026';
     const SYNC_CHANNEL_NAME = 'sage_minibus_tv_sync_v3';
     const STANDARD_BUS_WIDTH = 260;
     const STANDARD_BUS_HEIGHT = 150;
-    const A4_LANDSCAPE_RATIO = 1.4142;
+
+    // 增強型 ICE 伺服器配置（包含 STUN 與公共 TURN 中繼，解決行動網路/機構 Wi-Fi 無法穿透問題）
+    const PEER_ICE_CONFIG = {
+      debug: 1,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' },
+          {
+            urls: 'turn:openrelay.metered.ca:80',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+          },
+          {
+            urls: 'turn:openrelay.metered.ca:443',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+          },
+          {
+            urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+          }
+        ]
+      }
+    };
 
     const urlParams = new URLSearchParams(window.location.search);
     const VIEW_MODE = urlParams.get('mode') || 'display';
-    const TARGET_HOST_PEER_ID = urlParams.get('host');
+    const TARGET_HOST_PEER_ID = urlParams.get('host') || FIXED_HOST_ROOM_ID;
 
     const bc = new BroadcastChannel(SYNC_CHANNEL_NAME);
 
@@ -328,26 +348,17 @@
     let lastTvPing = 0;
 
     let peer = null;
-    let hostPeerId = '';
+    let hostPeerId = FIXED_HOST_ROOM_ID;
     let mobileConn = null;
+    let mobileRetryTimer = null;
     let mobileActiveTab = 'coloring';
     let mobileRawImage = null;
     let mobileProcessedDataUrl = null;
     let selectedBrushColor = '#e74c3c';
 
     const PALETTE_COLORS = [
-      '#f1c40f', // 經典小巴黃
-      '#e67e22', // 活力橙
-      '#e74c3c', // 喜慶紅
-      '#ff6b81', // 粉紅桃
-      '#9b59b6', // 優雅紫
-      '#3498db', // 天空藍
-      '#1abc9c', // 湖水綠
-      '#27ae60', // 翠草綠
-      '#f9e79f', // 淺奶油黃
-      '#d6eaf8', // 車窗淺藍
-      '#ffffff', // 純潔白
-      '#2c3e50'  // 經典深灰
+      '#f1c40f', '#e67e22', '#e74c3c', '#ff6b81', '#9b59b6', '#3498db',
+      '#1abc9c', '#27ae60', '#f9e79f', '#d6eaf8', '#ffffff', '#2c3e50'
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -379,6 +390,9 @@
           broadcastFullStateToTV();
         } else if (msg.type === 'BUS_EXITED_RIGHT') {
           onBusExitedRightBoundary(msg.busId);
+        } else if (msg.type === 'LOCAL_PAD_SUBMIT') {
+          // 接收同機／同瀏覽器平板視窗直接送出的作品（免跨網路）
+          enqueueBusFromAnySource(msg.image, false, msg.sender || '現場平板參加者');
         } else if (msg.type === 'TV_STATE_SYNC') {
           msg.buses.forEach(p => {
             const found = activeBuses.find(b => b.id === p.id);
@@ -397,31 +411,52 @@
       }, 1000);
     }
 
-    function setupHostPeerNetwork() {
+    function setupHostPeerNetwork(customId = FIXED_HOST_ROOM_ID) {
       const statusEl = document.getElementById('stat-peer-status');
-      const randomRoom = 'sage-bus-' + Math.random().toString(36).substring(2, 8);
-      peer = new Peer(randomRoom, { debug: 1 });
+      const roomBadge = document.getElementById('room-id-badge');
+
+      if (peer) {
+        try { peer.destroy(); } catch (e) {}
+      }
+
+      peer = new Peer(customId, PEER_ICE_CONFIG);
 
       peer.on('open', (id) => {
         hostPeerId = id;
         statusEl.innerText = '🟢 手機通道就緒';
         statusEl.style.color = '#27ae60';
+        roomBadge.innerText = `頻道房號：${id}`;
         generateMobileQRCode(id);
       });
 
       peer.on('connection', (conn) => {
         conn.on('data', (payload) => {
-          if (payload && payload.type === 'MOBILE_UPLOAD_BUS' && payload.image) {
-            enqueueBusFromAnySource(payload.image, false, payload.sender || '線上參加者');
+          if (payload && payload.type === 'PING_HOST') {
+            conn.send({ type: 'PONG_HOST' });
+          } else if (payload && payload.type === 'MOBILE_UPLOAD_BUS' && payload.image) {
+            enqueueBusFromAnySource(payload.image, false, payload.sender || '手機參加者');
             conn.send({ type: 'UPLOAD_ACK', queuePos: waitingQueue.length, activeCount: activeBuses.length });
           }
         });
       });
 
-      peer.on('error', () => {
-        statusEl.innerText = '🟡 離線/本機模式';
-        statusEl.style.color = '#e67e22';
-        generateMobileQRCode('offline');
+      peer.on('error', (err) => {
+        // 若固定房號被舊分頁佔用，自動改用隨機房號並更新 QR Code
+        if (err && err.type === 'unavailable-id') {
+          const fallbackId = 'sage-bus-' + Math.random().toString(36).substring(2, 7);
+          setupHostPeerNetwork(fallbackId);
+        } else {
+          statusEl.innerText = '🟡 網路連線受限';
+          statusEl.style.color = '#e67e22';
+          roomBadge.innerText = '請檢查電腦網路是否暢通';
+          generateMobileQRCode(customId);
+        }
+      });
+
+      peer.on('disconnected', () => {
+        if (peer && !peer.destroyed) {
+          peer.reconnect();
+        }
       });
     }
 
@@ -446,6 +481,13 @@
       mobileUrl.searchParams.set('mode', 'mobile');
       mobileUrl.searchParams.set('host', hostPeerId);
       navigator.clipboard.writeText(mobileUrl.toString()).then(() => alert('已複製參加者頁面網址！\n' + mobileUrl.toString()));
+    }
+
+    function openLocalPadWindow() {
+      const padUrl = new URL(window.location.href);
+      padUrl.searchParams.set('mode', 'mobile');
+      padUrl.searchParams.set('host', hostPeerId);
+      window.open(padUrl.toString(), 'SageMinibusLocalPad', 'width=480,height=780');
     }
 
     function handleCustomBgUpload(event) {
@@ -486,7 +528,6 @@
       }
     }
 
-    // 自動去背引擎（用於自行上載畫作模式）
     function processWhiteBgRemoval(canvas, ctx, threshold = 210, feather = 28) {
       let w = canvas.width, h = canvas.height;
       let imgData = ctx.getImageData(0, 0, w, h);
@@ -519,7 +560,7 @@
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const i = (y * w + x) * 4;
-          if (data[i + 3] < 20) continue; // 原本已是透明背景則保留
+          if (data[i + 3] < 20) continue;
 
           const calR = Math.min(255, data[i] * gainR);
           const calG = Math.min(255, data[i + 1] * gainG);
@@ -793,31 +834,85 @@
     }
 
     // ==========================================
-    // 3. 手機／平板端（點選區域填色 ＋ 自訂畫作上載）
+    // 3. 手機／平板端（強化自動重連 ＋ 點選填色）
     // ==========================================
     function initMobilePage() {
       buildColorPalette();
+      connectToHostPeer();
+    }
 
+    function connectToHostPeer() {
       const statusBadge = document.getElementById('mobile-conn-status');
-      if (!TARGET_HOST_PEER_ID || TARGET_HOST_PEER_ID === 'offline') {
-        statusBadge.innerText = '⚠️ 尚未連接大電視主機';
-        return;
+      const retryBtn = document.getElementById('mobile-retry-btn');
+
+      statusBadge.className = 'conn-pill';
+      statusBadge.innerText = '⏳ 正在連線至大電視系統...';
+      retryBtn.style.display = 'none';
+
+      if (mobileRetryTimer) clearTimeout(mobileRetryTimer);
+
+      if (peer) {
+        try { peer.destroy(); } catch (e) {}
       }
-      peer = new Peer();
+
+      peer = new Peer(PEER_ICE_CONFIG);
+
       peer.on('open', () => {
-        mobileConn = peer.connect(TARGET_HOST_PEER_ID, { reliable: true });
-        mobileConn.on('open', () => {
-          statusBadge.innerText = '🟢 已連線至大電視！隨時可送出';
-          statusBadge.classList.add('connected');
-        });
-        mobileConn.on('data', (res) => {
-          if (res && res.type === 'UPLOAD_ACK') {
-            document.getElementById('mobile-status-msg').innerText = res.queuePos > 0
-              ? `🎉 送出成功！目前排隊第 ${res.queuePos} 位，請留意大電視！`
-              : '🎉 送出成功！你的小巴已出發駛入社區！';
-          }
-        });
+        attemptDataConnection();
       });
+
+      peer.on('error', () => {
+        statusBadge.className = 'conn-pill error';
+        statusBadge.innerText = '⚠️ 網路連線受阻，請按重新連線';
+        retryBtn.style.display = 'inline-flex';
+      });
+
+      // 若 6 秒仍未成功建立數據通道，顯示重新連線按鈕並自動嘗試一次
+      mobileRetryTimer = setTimeout(() => {
+        if (!mobileConn || !mobileConn.open) {
+          statusBadge.className = 'conn-pill error';
+          statusBadge.innerText = '⚠️ 連線逾時（請確認大電視控制中心已開啟）';
+          retryBtn.style.display = 'inline-flex';
+        }
+      }, 6000);
+    }
+
+    function attemptDataConnection() {
+      const statusBadge = document.getElementById('mobile-conn-status');
+      const retryBtn = document.getElementById('mobile-retry-btn');
+
+      mobileConn = peer.connect(TARGET_HOST_PEER_ID, { reliable: true });
+
+      mobileConn.on('open', () => {
+        if (mobileRetryTimer) clearTimeout(mobileRetryTimer);
+        statusBadge.className = 'conn-pill connected';
+        statusBadge.innerText = '🟢 已連線至大電視！隨時可送出';
+        retryBtn.style.display = 'none';
+      });
+
+      mobileConn.on('data', (res) => {
+        if (res && res.type === 'UPLOAD_ACK') {
+          document.getElementById('mobile-status-msg').innerText = res.queuePos > 0
+            ? `🎉 送出成功！目前排隊第 ${res.queuePos} 位，請留意大電視！`
+            : '🎉 送出成功！你的小巴已出發駛入社區！';
+        }
+      });
+
+      mobileConn.on('close', () => {
+        statusBadge.className = 'conn-pill error';
+        statusBadge.innerText = '🔴 連線已中斷，請按重新連線';
+        retryBtn.style.display = 'inline-flex';
+      });
+
+      mobileConn.on('error', () => {
+        statusBadge.className = 'conn-pill error';
+        statusBadge.innerText = '⚠️ 無法連接主機，請重試';
+        retryBtn.style.display = 'inline-flex';
+      });
+    }
+
+    function reconnectMobilePeer() {
+      connectToHostPeer();
     }
 
     function buildColorPalette() {
@@ -943,14 +1038,8 @@
     }
 
     async function sendMobileBusToHost() {
-      if (!mobileConn || !mobileConn.open) {
-        alert('尚未連線到大電視主機，請確認網路或重新掃描 QR Code！');
-        return;
-      }
-
       const sendBtn = document.getElementById('mobile-send-btn');
       sendBtn.disabled = true;
-      document.getElementById('mobile-status-msg').innerText = '⏳ 正在傳送小巴至大電視...';
 
       let finalImageUrl = null;
       let senderTitle = '線上填色參加者';
@@ -968,8 +1057,19 @@
         return;
       }
 
-      mobileConn.send({ type: 'MOBILE_UPLOAD_BUS', image: finalImageUrl, sender: senderTitle });
-      setTimeout(() => { sendBtn.disabled = false; }, 3000);
+      // 若是同一部電腦/平板開啟的視窗，直接走本地通道秒傳
+      bc.postMessage({ type: 'LOCAL_PAD_SUBMIT', image: finalImageUrl, sender: senderTitle });
+
+      if (mobileConn && mobileConn.open) {
+        document.getElementById('mobile-status-msg').innerText = '⏳ 正在傳送小巴至大電視...';
+        mobileConn.send({ type: 'MOBILE_UPLOAD_BUS', image: finalImageUrl, sender: senderTitle });
+      } else {
+        // 若遠端 P2P 尚未連上，提示並嘗試自動重連
+        document.getElementById('mobile-status-msg').innerText = '⚠️ 尚未連上遠端主機，請按上方「重新連線」後再按送出！';
+        document.getElementById('mobile-retry-btn').style.display = 'inline-flex';
+      }
+
+      setTimeout(() => { sendBtn.disabled = false; }, 2500);
     }
 
     // ==========================================
