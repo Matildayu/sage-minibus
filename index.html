@@ -41,7 +41,7 @@
       background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #ffffff;
     }
 
-    /* 工作人員控制面板（僅 ?mode=admin 顯示） */
+    /* 1. 工作人員控制面板（僅 ?mode=admin 顯示） */
     #operator-view { display: none; max-width: 1200px; margin: 0 auto; padding: 18px; }
     .op-header {
       background: var(--panel-bg); border: 2px solid var(--border-light); border-radius: 14px;
@@ -80,20 +80,41 @@
     .pill-red { background: #fadbd8; color: #c0392b; }
     .pill-blue { background: #d6eaf8; color: #2874a6; }
 
-    /* 城市展示視窗（大電視純全螢幕畫面，完全無操控面板） */
+    /* 2. 城市展示視窗（大電視純全螢幕畫面，完全無操控面板） */
     #display-view { display: none; width: 100vw; height: 100vh; overflow: hidden; position: fixed; inset: 0; background: #87ceeb; z-index: 10; }
     #city-canvas { display: block; width: 100%; height: 100%; }
     #tv-floating-bar { position: absolute; top: 14px; right: 18px; opacity: 0; transition: opacity 0.3s; z-index: 20; display: flex; gap: 8px; }
     #display-view:hover #tv-floating-bar { opacity: 1; }
 
-    /* 手機上載頁面 */
-    #mobile-view { display: none; min-height: 100vh; background: linear-gradient(180deg, #fff9e6 0%, #fdf2e9 100%); padding: 18px; flex-direction: column; align-items: center; }
-    .mobile-card { width: 100%; max-width: 440px; background: #ffffff; border-radius: 18px; padding: 20px; box-shadow: 0 8px 24px rgba(230, 126, 34, 0.15); border: 2px solid #f8c471; display: flex; flex-direction: column; gap: 14px; }
+    /* 3. 手機／平板參加者互動頁面 */
+    #mobile-view { display: none; min-height: 100vh; background: linear-gradient(180deg, #fff9e6 0%, #fdf2e9 100%); padding: 14px; flex-direction: column; align-items: center; }
+    .mobile-card { width: 100%; max-width: 520px; background: #ffffff; border-radius: 20px; padding: 18px; box-shadow: 0 8px 24px rgba(230, 126, 34, 0.15); border: 2px solid #f8c471; display: flex; flex-direction: column; gap: 12px; }
     .mobile-header { text-align: center; }
-    .mobile-header h1 { font-size: 1.4rem; color: #d35400; margin-bottom: 4px; }
-    .mobile-header p { font-size: 0.9rem; color: #5d6d7e; }
+    .mobile-header h1 { font-size: 1.45rem; color: #d35400; margin-bottom: 4px; }
+    .mobile-header p { font-size: 0.92rem; color: #5d6d7e; }
     .conn-pill { align-self: center; padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; background: #fef9e7; color: #b7950b; border: 1px solid #f9e79f; }
     .conn-pill.connected { background: #eafaf1; color: #1e8449; border-color: #a9dfbf; }
+
+    .mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #faf6f0; padding: 5px; border-radius: 12px; border: 1px solid #e0d6c8; }
+    .tab-btn { padding: 10px; border: none; border-radius: 9px; font-size: 0.98rem; font-weight: bold; cursor: pointer; background: transparent; color: #7f8c8d; transition: all 0.2s; }
+    .tab-btn.active { background: var(--primary-orange); color: #fff; box-shadow: 0 2px 6px rgba(230,126,34,0.3); }
+
+    /* 點選區域填色區 */
+    .coloring-stage { width: 100%; background: #fdfbf7; border: 2px solid #f5cba7; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    #bus-svg-editor { width: 100%; max-width: 440px; height: auto; touch-action: manipulation; cursor: pointer; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12)); }
+    .bus-part { transition: fill 0.15s ease; cursor: pointer; }
+    .bus-part:hover { opacity: 0.9; }
+
+    .palette-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; width: 100%; padding: 4px 0; }
+    .color-swatch {
+      width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; border: 3px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .color-swatch.selected { transform: scale(1.16); border-color: #2c3e50; box-shadow: 0 0 0 3px #f1c40f; }
+
+    .label-selector { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: #fff8ee; padding: 8px 12px; border-radius: 10px; border: 1px solid #fae5d3; font-size: 0.92rem; font-weight: bold; }
+    .label-selector select { padding: 6px 10px; border-radius: 8px; border: 1px solid #e67e22; font-size: 0.95rem; font-weight: bold; color: #2c3e50; background: #fff; }
+
     .mobile-preview-area { width: 100%; aspect-ratio: 1.414 / 1; border-radius: 12px; border: 2px dashed #e67e22; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
     #mobile-preview-img { width: 260px; height: 150px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); }
     .mobile-btn-big { width: 100%; padding: 15px; font-size: 1.15rem; border-radius: 12px; }
@@ -139,15 +160,15 @@
 
     <div class="op-grid">
       <div class="panel-card">
-        <h2>📱 手機掃描上載 QR Code</h2>
+        <h2>📱 手機／平板掃描 QR Code</h2>
         <div id="qrcode-container">
           <div id="qrcode"></div>
-          <div style="margin-top:10px; font-size:0.85rem; font-weight:bold; color:#d35400;">請參加者掃描加入小巴遊社區</div>
+          <div style="margin-top:10px; font-size:0.85rem; font-weight:bold; color:#d35400;">掃描即可線上點選填色或上載畫作</div>
         </div>
         <div id="local-file-warning" class="warn-local" style="display:none;">
           ⚠️ <strong>本機檔案提示：</strong>以本機檔案開啟時手機無法連線。請上傳至 Netlify Drop 或 GitHub Pages 產生正式網址！
         </div>
-        <button class="btn btn-gray" style="width:100%; font-size:0.85rem;" onclick="copyMobileUrl()">🔗 複製手機上載頁面網址</button>
+        <button class="btn btn-gray" style="width:100%; font-size:0.85rem;" onclick="copyMobileUrl()">🔗 複製參加者頁面網址</button>
 
         <h2 style="margin-top:8px;">🖼️ 社區背景底圖設定</h2>
         <input type="file" id="bg-upload-input" accept="image/*" style="display:none;" onchange="handleCustomBgUpload(event)" />
@@ -176,44 +197,116 @@
     </div>
   </div>
 
-  <!-- 3. 手機參加者上載頁面 -->
+  <!-- 3. 手機／平板參加者互動頁面（支援點選區域填色 ＋ 自訂畫作上載） -->
   <div id="mobile-view">
     <div class="mobile-card">
       <div class="mobile-header">
         <h1>🚌 耆康黃色小巴遊社區</h1>
-        <p>拍下你的 A4 填色小巴，系統會自動裁切紙張以外範圍！</p>
+        <p>點選顏色再輕觸小巴部位即可填色，或上載你的畫作！</p>
       </div>
       <div id="mobile-conn-status" class="conn-pill">⏳ 正在連線至大電視系統...</div>
-      <input type="file" id="mobile-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handleMobileFileSelect(event)" />
-      <input type="file" id="mobile-album-input" accept="image/*" style="display:none;" onchange="handleMobileFileSelect(event)" />
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <button class="btn btn-orange mobile-btn-big" onclick="document.getElementById('mobile-file-input').click()">📷 立即拍照</button>
-        <button class="btn btn-blue mobile-btn-big" onclick="document.getElementById('mobile-album-input').click()">🖼️ 從相簿選圖</button>
+
+      <!-- 模式切換分頁 -->
+      <div class="mode-tabs">
+        <button id="tab-coloring" class="tab-btn active" onclick="switchMobileTab('coloring')">🎨 點選區域填色</button>
+        <button id="tab-upload" class="tab-btn" onclick="switchMobileTab('upload')">📤 上載自訂畫作</button>
       </div>
-      <div class="mobile-preview-area checkerboard">
-        <img id="mobile-preview-img" alt="預覽小巴" style="display:none;" />
-        <span id="mobile-preview-hint" style="color:#7f8c8d; font-size:0.9rem; text-align:center; padding:12px;">請將整張 A4 白紙拍入畫面（影多左紙外範圍會自動 CUT 走！）</span>
+
+      <!-- 分頁 A：點選區域填色（長者友善免畫筆設計） -->
+      <div id="panel-coloring" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="coloring-stage">
+          <div style="font-size:0.86rem; color:#d35400; font-weight:bold;">👇 先選下方顏色，再點一下小巴任何部位！</div>
+          <!-- 互動式 SVG 小巴 -->
+          <svg id="bus-svg-editor" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+            <!-- 車頂 -->
+            <path id="part-roof" class="bus-part" d="M 38 20 L 208 20 Q 234 20 234 46 L 234 62 L 22 62 L 22 36 Q 22 20 38 20 Z" fill="#d35400" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-roof')"/>
+            <!-- 下半車身主體 -->
+            <path id="part-body" class="bus-part" d="M 22 58 L 238 58 Q 246 58 246 74 L 246 112 Q 246 120 238 120 L 22 120 Q 14 120 14 112 L 14 66 Q 14 58 22 58 Z" fill="#f9e79f" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-body')"/>
+            <!-- 經典腰帶色帶 -->
+            <rect id="part-stripe" class="bus-part" x="16" y="72" width="228" height="13" fill="#f1c40f" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-stripe')"/>
+            <!-- 四扇車窗 -->
+            <rect id="part-win1" class="bus-part" x="32" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win1')"/>
+            <rect id="part-win2" class="bus-part" x="76" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win2')"/>
+            <rect id="part-win3" class="bus-part" x="120" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win3')"/>
+            <rect id="part-win4" class="bus-part" x="164" y="29" width="24" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win4')"/>
+            <!-- 車頭路線牌 -->
+            <rect id="part-sign" class="bus-part" x="193" y="25" width="36" height="20" rx="4" fill="#2c3e50" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-sign')"/>
+            <text x="211" y="39" font-size="9.5" font-weight="bold" fill="#f1c40f" text-anchor="middle" pointer-events="none">耆康線</text>
+            <!-- 車身文字標語 -->
+            <text id="svg-bus-label" x="130" y="106" font-size="14.5" font-weight="bold" fill="#2c3e50" text-anchor="middle" pointer-events="none">耆康社區號</text>
+            <!-- 車頭大燈與車尾燈 -->
+            <circle id="part-headlight" class="bus-part" cx="238" cy="102" r="6.5" fill="#f39c12" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-headlight')"/>
+            <circle id="part-taillight" class="bus-part" cx="21" cy="102" r="5.5" fill="#e74c3c" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-taillight')"/>
+            <!-- 前後車輪 -->
+            <g class="bus-part" onclick="paintBusPart('part-wheel-front')">
+              <circle id="part-wheel-front" cx="192" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
+              <circle cx="192" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
+            </g>
+            <g class="bus-part" onclick="paintBusPart('part-wheel-rear')">
+              <circle id="part-wheel-rear" cx="64" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
+              <circle cx="64" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
+            </g>
+          </svg>
+
+          <!-- 12色大按鈕調色盤 -->
+          <div class="palette-grid" id="color-palette"></div>
+
+          <!-- 車身標語選擇 & 快捷操作 -->
+          <div class="label-selector">
+            <span>🏷️ 車身路線：</span>
+            <select id="bus-label-select" onchange="updateSvgBusLabel(this.value)">
+              <option value="耆康社區號">耆康社區號</option>
+              <option value="耆康50週年">耆康50週年</option>
+              <option value="長者快樂專線">長者快樂專線</option>
+              <option value="健康幸福號">健康幸福號</option>
+              <option value="老友記遊社區">老友記遊社區</option>
+            </select>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%;">
+            <button class="btn btn-blue" style="padding:9px; font-size:0.9rem;" onclick="randomizeBusColors()">🎲 隨機換色</button>
+            <button class="btn btn-gray" style="padding:9px; font-size:0.9rem;" onclick="resetBusColors()">🔄 還原預設黃巴</button>
+          </div>
+        </div>
       </div>
-      <div class="slider-row" id="mobile-slider-box" style="display:none;">
-        <label style="display:flex; justify-content:space-between;">
-          <span>去背乾淨度微調：</span><strong id="mobile-thresh-label">210</strong>
-        </label>
-        <input type="range" id="mobile-thresh" min="150" max="245" value="210" oninput="reprocessMobileImage()" />
+
+      <!-- 分頁 B：自行上載畫作（相簿選圖或拍照自動去背） -->
+      <div id="panel-upload" style="display:none; flex-direction:column; gap:10px;">
+        <input type="file" id="mobile-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handleMobileFileSelect(event)" />
+        <input type="file" id="mobile-album-input" accept="image/*" style="display:none;" onchange="handleMobileFileSelect(event)" />
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button class="btn btn-orange" style="padding:13px; font-size:1rem;" onclick="document.getElementById('mobile-file-input').click()">📷 立即拍照</button>
+          <button class="btn btn-blue" style="padding:13px; font-size:1rem;" onclick="document.getElementById('mobile-album-input').click()">🖼️ 從相簿選圖</button>
+        </div>
+        <div class="mobile-preview-area checkerboard">
+          <img id="mobile-preview-img" alt="預覽畫作" style="display:none;" />
+          <span id="mobile-preview-hint" style="color:#7f8c8d; font-size:0.9rem; text-align:center; padding:12px;">可上載已填色的小巴畫作或圖片，系統會自動去背！</span>
+        </div>
+        <div class="slider-row" id="mobile-slider-box" style="display:none;">
+          <label style="display:flex; justify-content:space-between;">
+            <span>去背乾淨度微調：</span><strong id="mobile-thresh-label">210</strong>
+          </label>
+          <input type="range" id="mobile-thresh" min="150" max="245" value="210" oninput="reprocessMobileImage()" />
+        </div>
       </div>
-      <button id="mobile-send-btn" class="btn btn-green mobile-btn-big" disabled onclick="sendMobileBusToHost()">🚀 送出小巴出發去！</button>
-      <div id="mobile-status-msg" style="text-align:center; font-size:0.92rem; font-weight:bold; color:#1e8449; min-height:22px;"></div>
+
+      <button id="mobile-send-btn" class="btn btn-green mobile-btn-big" onclick="sendMobileBusToHost()">🚀 送出小巴出發去！</button>
+      <div id="mobile-status-msg" style="text-align:center; font-size:0.95rem; font-weight:bold; color:#1e8449; min-height:24px;"></div>
     </div>
   </div>
 
   <canvas id="offscreen-canvas" style="display:none;"></canvas>
 
   <script>
+    // 高峰時間畫面最多只限 6 架小巴出現（遠車道 3 架、近車道 3 架）
     const MAX_BUSES_ON_STAGE = 6;
     const MAX_PER_LANE = 3;
 
+    // 每架小巴最長行駛 5 分鐘 (300秒)；若有人排隊則動態縮短至 2 分鐘 (120秒) 加快輪替
     const MAX_STAY_MS = 5 * 60 * 1000;
     const PEAK_GUARANTEE_MS = 2 * 60 * 1000;
 
+    // 所有小巴行駛速度完全一致，同車道嚴格保持 1/3 軌道 (0.33) 等距防重疊
     const UNIFORM_BUS_SPEED = 0.00055;
     const LANE_SAFE_GAP = 0.33;
 
@@ -237,8 +330,25 @@
     let peer = null;
     let hostPeerId = '';
     let mobileConn = null;
+    let mobileActiveTab = 'coloring';
     let mobileRawImage = null;
     let mobileProcessedDataUrl = null;
+    let selectedBrushColor = '#e74c3c';
+
+    const PALETTE_COLORS = [
+      '#f1c40f', // 經典小巴黃
+      '#e67e22', // 活力橙
+      '#e74c3c', // 喜慶紅
+      '#ff6b81', // 粉紅桃
+      '#9b59b6', // 優雅紫
+      '#3498db', // 天空藍
+      '#1abc9c', // 湖水綠
+      '#27ae60', // 翠草綠
+      '#f9e79f', // 淺奶油黃
+      '#d6eaf8', // 車窗淺藍
+      '#ffffff', // 純潔白
+      '#2c3e50'  // 經典深灰
+    ];
 
     window.addEventListener('DOMContentLoaded', () => {
       if (VIEW_MODE === 'admin' || VIEW_MODE === 'operator') {
@@ -253,6 +363,9 @@
       }
     });
 
+    // ==========================================
+    // 1. 工作人員控制面板
+    // ==========================================
     function initOperatorPanel() {
       setupHostPeerNetwork();
       spawnInitialDefaultBuses();
@@ -299,7 +412,7 @@
       peer.on('connection', (conn) => {
         conn.on('data', (payload) => {
           if (payload && payload.type === 'MOBILE_UPLOAD_BUS' && payload.image) {
-            enqueueBusFromAnySource(payload.image, false, payload.sender || '手機參加者');
+            enqueueBusFromAnySource(payload.image, false, payload.sender || '線上參加者');
             conn.send({ type: 'UPLOAD_ACK', queuePos: waitingQueue.length, activeCount: activeBuses.length });
           }
         });
@@ -332,7 +445,7 @@
       const mobileUrl = new URL(window.location.href);
       mobileUrl.searchParams.set('mode', 'mobile');
       mobileUrl.searchParams.set('host', hostPeerId);
-      navigator.clipboard.writeText(mobileUrl.toString()).then(() => alert('已複製手機上載網址！\n' + mobileUrl.toString()));
+      navigator.clipboard.writeText(mobileUrl.toString()).then(() => alert('已複製參加者頁面網址！\n' + mobileUrl.toString()));
     }
 
     function handleCustomBgUpload(event) {
@@ -373,76 +486,11 @@
       }
     }
 
-    // A4 紙張區域自動偵測裁切 + 去背標準化
+    // 自動去背引擎（用於自行上載畫作模式）
     function processWhiteBgRemoval(canvas, ctx, threshold = 210, feather = 28) {
       let w = canvas.width, h = canvas.height;
       let imgData = ctx.getImageData(0, 0, w, h);
       let data = imgData.data;
-
-      let centerLumSum = 0, centerCount = 0;
-      const cx0 = Math.floor(w * 0.25), cx1 = Math.floor(w * 0.75);
-      const cy0 = Math.floor(h * 0.25), cy1 = Math.floor(h * 0.75);
-      for (let y = cy0; y < cy1; y += 3) {
-        for (let x = cx0; x < cx1; x += 3) {
-          const i = (y * w + x) * 4;
-          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          if (lum > 135) { centerLumSum += lum; centerCount++; }
-        }
-      }
-      const paperBaseLum = centerCount > 0 ? (centerLumSum / centerCount) : 210;
-      const paperDetectThresh = Math.max(125, paperBaseLum * 0.68);
-
-      let paperMinX = w, paperMaxX = 0, paperMinY = h, paperMaxY = 0, paperPixelCount = 0;
-      for (let y = 0; y < h; y += 2) {
-        for (let x = 0; x < w; x += 2) {
-          const i = (y * w + x) * 4;
-          const r = data[i], g = data[i + 1], b = data[i + 2];
-          const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-          const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
-          const sat = maxC === 0 ? 0 : (maxC - minC) / maxC;
-          if (lum >= paperDetectThresh || (lum >= 95 && sat > 0.28)) {
-            if (x < paperMinX) paperMinX = x;
-            if (x > paperMaxX) paperMaxX = x;
-            if (y < paperMinY) paperMinY = y;
-            if (y > paperMaxY) paperMaxY = y;
-            paperPixelCount++;
-          }
-        }
-      }
-
-      if (paperPixelCount > 100 && paperMaxX > paperMinX && paperMaxY > paperMinY) {
-        let detectedW = paperMaxX - paperMinX;
-        let detectedH = paperMaxY - paperMinY;
-        const centerX = (paperMinX + paperMaxX) / 2;
-        const centerY = (paperMinY + paperMaxY) / 2;
-
-        if (detectedW / detectedH > A4_LANDSCAPE_RATIO) {
-          detectedW = detectedH * A4_LANDSCAPE_RATIO;
-        } else {
-          detectedH = detectedW / A4_LANDSCAPE_RATIO;
-        }
-        const safeW = Math.round(detectedW * 0.94);
-        const safeH = Math.round(detectedH * 0.94);
-        const cropX = Math.max(0, Math.round(centerX - safeW / 2));
-        const cropY = Math.max(0, Math.round(centerY - safeH / 2));
-        const finalCropW = Math.min(w - cropX, safeW);
-        const finalCropH = Math.min(h - cropY, safeH);
-
-        if (finalCropW > 60 && finalCropH > 40) {
-          const croppedCanvas = document.createElement('canvas');
-          croppedCanvas.width = finalCropW;
-          croppedCanvas.height = finalCropH;
-          croppedCanvas.getContext('2d').drawImage(canvas, cropX, cropY, finalCropW, finalCropH, 0, 0, finalCropW, finalCropH);
-
-          canvas.width = finalCropW;
-          canvas.height = finalCropH;
-          ctx.drawImage(croppedCanvas, 0, 0);
-          w = finalCropW;
-          h = finalCropH;
-          imgData = ctx.getImageData(0, 0, w, h);
-          data = imgData.data;
-        }
-      }
 
       let sampleR = 0, sampleG = 0, sampleB = 0, sampleCount = 0;
       const margin = Math.max(4, Math.floor(Math.min(w, h) * 0.06));
@@ -471,6 +519,8 @@
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const i = (y * w + x) * 4;
+          if (data[i + 3] < 20) continue; // 原本已是透明背景則保留
+
           const calR = Math.min(255, data[i] * gainR);
           const calG = Math.min(255, data[i + 1] * gainG);
           const calB = Math.min(255, data[i + 2] * gainB);
@@ -488,8 +538,7 @@
             data[i + 3] = 255;
           }
 
-          const borderGuardX = w * 0.02, borderGuardY = h * 0.02;
-          if (data[i + 3] > 95 && x > borderGuardX && x < w - borderGuardX && y > borderGuardY && y < h - borderGuardY) {
+          if (data[i + 3] > 95) {
             if (x < minX) minX = x;
             if (x > maxX) maxX = x;
             if (y < minY) minY = y;
@@ -743,21 +792,117 @@
       return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
     }
 
-    // 手機上載端
+    // ==========================================
+    // 3. 手機／平板端（點選區域填色 ＋ 自訂畫作上載）
+    // ==========================================
     function initMobilePage() {
+      buildColorPalette();
+
       const statusBadge = document.getElementById('mobile-conn-status');
       if (!TARGET_HOST_PEER_ID || TARGET_HOST_PEER_ID === 'offline') {
-        statusBadge.innerText = '⚠️ 尚未連接大電視主機'; return;
+        statusBadge.innerText = '⚠️ 尚未連接大電視主機';
+        return;
       }
       peer = new Peer();
       peer.on('open', () => {
         mobileConn = peer.connect(TARGET_HOST_PEER_ID, { reliable: true });
-        mobileConn.on('open', () => { statusBadge.innerText = '🟢 已連線至大電視！'; statusBadge.classList.add('connected'); });
+        mobileConn.on('open', () => {
+          statusBadge.innerText = '🟢 已連線至大電視！隨時可送出';
+          statusBadge.classList.add('connected');
+        });
         mobileConn.on('data', (res) => {
           if (res && res.type === 'UPLOAD_ACK') {
-            document.getElementById('mobile-status-msg').innerText = res.queuePos > 0 ? `🎉 送出成功！前面有 ${res.queuePos} 位排隊中` : '🎉 送出成功！車輛已出發！';
+            document.getElementById('mobile-status-msg').innerText = res.queuePos > 0
+              ? `🎉 送出成功！目前排隊第 ${res.queuePos} 位，請留意大電視！`
+              : '🎉 送出成功！你的小巴已出發駛入社區！';
           }
         });
+      });
+    }
+
+    function buildColorPalette() {
+      const container = document.getElementById('color-palette');
+      container.innerHTML = '';
+      PALETTE_COLORS.forEach((hex, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'color-swatch' + (idx === 2 ? ' selected' : '');
+        btn.style.backgroundColor = hex;
+        if (idx === 2) selectedBrushColor = hex;
+        btn.onclick = () => {
+          document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedBrushColor = hex;
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function switchMobileTab(tab) {
+      mobileActiveTab = tab;
+      document.getElementById('tab-coloring').classList.toggle('active', tab === 'coloring');
+      document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+      document.getElementById('panel-coloring').style.display = tab === 'coloring' ? 'flex' : 'none';
+      document.getElementById('panel-upload').style.display = tab === 'upload' ? 'flex' : 'none';
+
+      const sendBtn = document.getElementById('mobile-send-btn');
+      if (tab === 'coloring') {
+        sendBtn.disabled = false;
+      } else {
+        sendBtn.disabled = !mobileProcessedDataUrl;
+      }
+    }
+
+    function paintBusPart(partId) {
+      const el = document.getElementById(partId);
+      if (el) el.setAttribute('fill', selectedBrushColor);
+    }
+
+    function updateSvgBusLabel(text) {
+      document.getElementById('svg-bus-label').textContent = text;
+    }
+
+    function randomizeBusColors() {
+      const pick = () => PALETTE_COLORS[Math.floor(Math.random() * 10)];
+      document.getElementById('part-roof').setAttribute('fill', pick());
+      document.getElementById('part-body').setAttribute('fill', pick());
+      document.getElementById('part-stripe').setAttribute('fill', pick());
+      ['part-win1', 'part-win2', 'part-win3', 'part-win4'].forEach(id => {
+        document.getElementById(id).setAttribute('fill', '#d6eaf8');
+      });
+    }
+
+    function resetBusColors() {
+      document.getElementById('part-roof').setAttribute('fill', '#d35400');
+      document.getElementById('part-body').setAttribute('fill', '#f9e79f');
+      document.getElementById('part-stripe').setAttribute('fill', '#f1c40f');
+      ['part-win1', 'part-win2', 'part-win3', 'part-win4'].forEach(id => {
+        document.getElementById(id).setAttribute('fill', '#d6eaf8');
+      });
+      document.getElementById('part-sign').setAttribute('fill', '#2c3e50');
+      document.getElementById('part-wheel-front').setAttribute('fill', '#2c3e50');
+      document.getElementById('part-wheel-rear').setAttribute('fill', '#2c3e50');
+    }
+
+    function renderSvgBusToDataUrl() {
+      return new Promise((resolve) => {
+        const svgEl = document.getElementById('bus-svg-editor');
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgEl);
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = STANDARD_BUS_WIDTH;
+          canvas.height = STANDARD_BUS_HEIGHT;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
+          URL.revokeObjectURL(url);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.src = url;
       });
     }
 
@@ -766,7 +911,11 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
-        img.onload = () => { mobileRawImage = img; document.getElementById('mobile-slider-box').style.display = 'flex'; reprocessMobileImage(); };
+        img.onload = () => {
+          mobileRawImage = img;
+          document.getElementById('mobile-slider-box').style.display = 'flex';
+          reprocessMobileImage();
+        };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
@@ -793,15 +942,39 @@
       document.getElementById('mobile-send-btn').disabled = false;
     }
 
-    function sendMobileBusToHost() {
-      if (!mobileProcessedDataUrl || !mobileConn || !mobileConn.open) { alert('尚未連線到大電視主機！'); return; }
-      document.getElementById('mobile-send-btn').disabled = true;
-      document.getElementById('mobile-status-msg').innerText = '⏳ 正在傳送至大電視...';
-      mobileConn.send({ type: 'MOBILE_UPLOAD_BUS', image: mobileProcessedDataUrl, sender: '手機參加者' });
-      setTimeout(() => { document.getElementById('mobile-send-btn').disabled = false; }, 2000);
+    async function sendMobileBusToHost() {
+      if (!mobileConn || !mobileConn.open) {
+        alert('尚未連線到大電視主機，請確認網路或重新掃描 QR Code！');
+        return;
+      }
+
+      const sendBtn = document.getElementById('mobile-send-btn');
+      sendBtn.disabled = true;
+      document.getElementById('mobile-status-msg').innerText = '⏳ 正在傳送小巴至大電視...';
+
+      let finalImageUrl = null;
+      let senderTitle = '線上填色參加者';
+
+      if (mobileActiveTab === 'coloring') {
+        finalImageUrl = await renderSvgBusToDataUrl();
+        senderTitle = document.getElementById('bus-label-select').value;
+      } else {
+        finalImageUrl = mobileProcessedDataUrl;
+        senderTitle = '自訂畫作參加者';
+      }
+
+      if (!finalImageUrl) {
+        sendBtn.disabled = false;
+        return;
+      }
+
+      mobileConn.send({ type: 'MOBILE_UPLOAD_BUS', image: finalImageUrl, sender: senderTitle });
+      setTimeout(() => { sendBtn.disabled = false; }, 3000);
     }
 
-    // 城市展示視窗（大電視純畫面）
+    // ==========================================
+    // 2. 城市展示視窗（大電視純畫面）
+    // ==========================================
     let tvCanvas, tvCtx;
     let tvBuses = new Map();
     let tvCustomBgImg = null;
