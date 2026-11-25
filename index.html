@@ -116,14 +116,15 @@
     .pen-bar { display: none; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: #fffdf7; padding: 7px 10px; border-radius: 10px; border: 1px solid #fae5d3; font-size: 0.84rem; font-weight: bold; }
     .pen-bar input[type="range"] { width: 110px; }
 
-    .bus-canvas-wrap { position: relative; width: 100%; max-width: 440px; aspect-ratio: 260 / 150; border-radius: 10px; overflow: hidden; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12)); }
+    .bus-canvas-wrap { position: relative; width: 100%; max-width: 440px; aspect-ratio: 260 / 150; border-radius: 10px; overflow: hidden; background: #ffffff; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12)); }
     #bus-svg-editor { width: 100%; height: 100%; display: block; cursor: pointer; }
     #bus-overlay-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; touch-action: none; }
     #bus-overlay-canvas.interactive { pointer-events: auto; cursor: crosshair; }
     #bus-overlay-canvas.stamp-mode { cursor: pointer; }
 
     .bus-part { transition: fill 0.15s ease; cursor: pointer; }
-    .bus-part:hover { opacity: 0.9; }
+    .bus-part:hover { opacity: 0.92; }
+    .bus-title-text { font-weight: 900; fill: #ffffff; stroke: #111111; stroke-width: 1.5; paint-order: stroke fill; pointer-events: none; }
 
     .palette-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; width: 100%; padding: 4px 0; }
     .color-swatch {
@@ -131,9 +132,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
     }
     .color-swatch.selected { transform: scale(1.16); border-color: #2c3e50; box-shadow: 0 0 0 3px #f1c40f; }
-
-    .label-selector { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: #fff8ee; padding: 8px 12px; border-radius: 10px; border: 1px solid #fae5d3; font-size: 0.92rem; font-weight: bold; }
-    .label-selector select { padding: 6px 10px; border-radius: 8px; border: 1px solid #e67e22; font-size: 0.95rem; font-weight: bold; color: #2c3e50; background: #fff; }
 
     .mobile-preview-area { width: 100%; aspect-ratio: 1.414 / 1; border-radius: 12px; border: 2px dashed #e67e22; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
     #mobile-preview-img { width: 260px; height: 150px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); }
@@ -265,42 +263,80 @@
 
           <div class="bus-canvas-wrap">
             <svg id="bus-svg-editor" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
-              <path id="part-roof" class="bus-part" d="M 38 20 L 208 20 Q 234 20 234 46 L 234 62 L 22 62 L 22 36 Q 22 20 38 20 Z" fill="#d35400" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-roof')"/>
-              <path id="part-body" class="bus-part" d="M 22 58 L 238 58 Q 246 58 246 74 L 246 112 Q 246 120 238 120 L 22 120 Q 14 120 14 112 L 14 66 Q 14 58 22 58 Z" fill="#f9e79f" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-body')"/>
-              <rect id="part-stripe" class="bus-part" x="16" y="72" width="228" height="13" fill="#f1c40f" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-stripe')"/>
-              <rect id="part-win1" class="bus-part" x="32" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win1')"/>
-              <rect id="part-win2" class="bus-part" x="76" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win2')"/>
-              <rect id="part-win3" class="bus-part" x="120" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win3')"/>
-              <rect id="part-win4" class="bus-part" x="164" y="29" width="24" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win4')"/>
-              <rect id="part-sign" class="bus-part" x="193" y="25" width="36" height="20" rx="4" fill="#2c3e50" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-sign')"/>
-              <text x="211" y="39" font-size="9.5" font-weight="bold" fill="#f1c40f" text-anchor="middle" pointer-events="none">耆康線</text>
-              <text id="svg-bus-label" x="130" y="106" font-size="14.5" font-weight="bold" fill="#2c3e50" text-anchor="middle" pointer-events="none">耆康社區號</text>
-              <circle id="part-headlight" class="bus-part" cx="238" cy="102" r="6.5" fill="#f39c12" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-headlight')"/>
-              <circle id="part-taillight" class="bus-part" cx="21" cy="102" r="5.5" fill="#e74c3c" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-taillight')"/>
-              <g class="bus-part" onclick="paintBusPart('part-wheel-front')">
-                <circle id="part-wheel-front" cx="192" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
-                <circle cx="192" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
+              <!-- 車身與車頂底色區域（配合「耆康會 50周年」小巴線稿） -->
+              <path id="part-body" class="bus-part"
+                d="M 14 78 Q 14 22 68 20 L 182 20 Q 214 20 226 42 L 246 84 Q 250 94 248 114 L 222 114 Q 216 92 194 92 Q 172 92 166 114 L 84 114 Q 78 92 56 92 Q 34 92 28 114 L 16 114 Q 14 96 14 78 Z"
+                fill="#ffffff" stroke="#111111" stroke-width="3.6" stroke-linejoin="round" onclick="paintBusPart('part-body')" />
+
+              <!-- 車頂目的地牌箱 -->
+              <rect id="part-roof-box" class="bus-part" x="56" y="8" width="128" height="16" rx="6"
+                fill="#ffffff" stroke="#111111" stroke-width="3.2" onclick="paintBusPart('part-roof-box')" />
+
+              <!-- 車頂左右指示燈 -->
+              <ellipse id="part-top-lamp-left" class="bus-part" cx="38" cy="36" rx="7" ry="3.5"
+                fill="#ffffff" stroke="#111111" stroke-width="2.4" onclick="paintBusPart('part-top-lamp-left')" />
+              <ellipse id="part-top-lamp-right" class="bus-part" cx="196" cy="36" rx="7" ry="3.5"
+                fill="#ffffff" stroke="#111111" stroke-width="2.4" onclick="paintBusPart('part-top-lamp-right')" />
+
+              <!-- 三扇乘客車窗 -->
+              <rect id="part-win1" class="bus-part" x="24" y="45" width="44" height="27" rx="6"
+                fill="#ffffff" stroke="#111111" stroke-width="3" onclick="paintBusPart('part-win1')" />
+              <rect id="part-win2" class="bus-part" x="75" y="45" width="44" height="27" rx="6"
+                fill="#ffffff" stroke="#111111" stroke-width="3" onclick="paintBusPart('part-win2')" />
+              <rect id="part-win3" class="bus-part" x="126" y="45" width="46" height="27" rx="6"
+                fill="#ffffff" stroke="#111111" stroke-width="3" onclick="paintBusPart('part-win3')" />
+
+              <!-- 折疊車門與門窗 -->
+              <rect id="part-door" class="bus-part" x="178" y="45" width="32" height="69" rx="5"
+                fill="#ffffff" stroke="#111111" stroke-width="3" onclick="paintBusPart('part-door')" />
+              <line x1="194" y1="45" x2="194" y2="114" stroke="#111111" stroke-width="2.8" pointer-events="none" />
+              <rect id="part-door-win-l" class="bus-part" x="182" y="51" width="9" height="26" rx="2"
+                fill="#ffffff" stroke="#111111" stroke-width="2.4" onclick="paintBusPart('part-door-win-l')" />
+              <rect id="part-door-win-r" class="bus-part" x="197" y="51" width="9" height="26" rx="2"
+                fill="#ffffff" stroke="#111111" stroke-width="2.4" onclick="paintBusPart('part-door-win-r')" />
+              <rect id="part-door-step" class="bus-part" x="175" y="114" width="38" height="5" rx="2"
+                fill="#ffffff" stroke="#111111" stroke-width="2.5" onclick="paintBusPart('part-door-step')" />
+
+              <!-- 車頭擋風玻璃與倒後鏡 -->
+              <path id="part-windshield" class="bus-part"
+                d="M 215 44 L 226 44 Q 232 58 235 76 L 215 76 Z"
+                fill="#ffffff" stroke="#111111" stroke-width="3" stroke-linejoin="round" onclick="paintBusPart('part-windshield')" />
+              <rect id="part-mirror" class="bus-part" x="234" y="48" width="12" height="22" rx="4"
+                fill="#ffffff" stroke="#111111" stroke-width="2.8" onclick="paintBusPart('part-mirror')" />
+              <path d="M 225 44 L 238 44 L 238 48" fill="none" stroke="#111111" stroke-width="3" stroke-linecap="round" pointer-events="none" />
+
+              <!-- 車頭側燈與水箱護罩橫柵 -->
+              <rect id="part-side-lamp" class="bus-part" x="226" y="83" width="11" height="5" rx="2.5"
+                fill="#ffffff" stroke="#111111" stroke-width="2.4" onclick="paintBusPart('part-side-lamp')" />
+              <rect id="part-grille" class="bus-part" x="234" y="92" width="13" height="19" rx="2"
+                fill="#ffffff" stroke="#111111" stroke-width="2.6" onclick="paintBusPart('part-grille')" />
+              <line x1="234" y1="97" x2="247" y2="97" stroke="#111111" stroke-width="2" pointer-events="none" />
+              <line x1="234" y1="102" x2="247" y2="102" stroke="#111111" stroke-width="2" pointer-events="none" />
+              <line x1="234" y1="107" x2="247" y2="107" stroke="#111111" stroke-width="2" pointer-events="none" />
+
+              <!-- 下方波浪飾條 -->
+              <path id="part-wave" class="bus-part"
+                d="M 15 84 Q 44 92 76 102 Q 112 112 146 102 Q 162 97 175 94 L 175 103 Q 160 107 144 111 Q 110 120 74 110 Q 42 100 15 93 Z"
+                fill="#ffffff" stroke="#111111" stroke-width="2.6" stroke-linejoin="round" onclick="paintBusPart('part-wave')" />
+
+              <!-- 車身字樣：耆康會 50周年 -->
+              <text x="98" y="88" font-size="14" text-anchor="middle" class="bus-title-text">耆康會</text>
+              <text x="98" y="102" font-size="13.5" text-anchor="middle" class="bus-title-text">50周年</text>
+
+              <!-- 後輪與前輪 -->
+              <g onclick="paintBusPart('part-wheel-rear')">
+                <circle id="part-wheel-rear" cx="56" cy="116" r="20" fill="#ffffff" stroke="#111111" stroke-width="3.6" />
+                <circle cx="56" cy="116" r="9.5" fill="#ffffff" stroke="#111111" stroke-width="3" pointer-events="none" />
               </g>
-              <g class="bus-part" onclick="paintBusPart('part-wheel-rear')">
-                <circle id="part-wheel-rear" cx="64" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
-                <circle cx="64" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
+              <g onclick="paintBusPart('part-wheel-front')">
+                <circle id="part-wheel-front" cx="194" cy="116" r="20" fill="#ffffff" stroke="#111111" stroke-width="3.6" />
+                <circle cx="194" cy="116" r="9.5" fill="#ffffff" stroke="#111111" stroke-width="3" pointer-events="none" />
               </g>
             </svg>
             <canvas id="bus-overlay-canvas" width="260" height="150"></canvas>
           </div>
 
           <div class="palette-grid" id="color-palette"></div>
-
-          <div class="label-selector">
-            <span>🏷️ 車身路線：</span>
-            <select id="bus-label-select" onchange="updateSvgBusLabel(this.value)">
-              <option value="耆康社區號">耆康社區號</option>
-              <option value="耆康50週年">耆康50週年</option>
-              <option value="長者快樂專線">長者快樂專線</option>
-              <option value="健康幸福號">健康幸福號</option>
-              <option value="老友記遊社區">老友記遊社區</option>
-            </select>
-          </div>
 
           <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; width:100%;">
             <button type="button" class="btn btn-blue" style="padding:8px 6px; font-size:0.84rem;" onclick="randomizeBusColors()">🎲 隨機換色</button>
@@ -383,7 +419,7 @@
     let mobileActiveTab = 'coloring';
     let mobileRawImage = null;
     let mobileProcessedDataUrl = null;
-    let selectedBrushColor = '#e74c3c';
+    let selectedBrushColor = '#f1c40f';
 
     // 填色／手寫／圖案狀態
     let drawToolMode = 'fill'; // 'fill' | 'pen' | 'stamp'
@@ -396,6 +432,14 @@
     const PALETTE_COLORS = [
       '#f1c40f', '#e67e22', '#e74c3c', '#ff6b81', '#9b59b6', '#3498db',
       '#1abc9c', '#27ae60', '#f9e79f', '#d6eaf8', '#ffffff', '#2c3e50'
+    ];
+
+    const FILLABLE_PART_IDS = [
+      'part-body', 'part-roof-box', 'part-top-lamp-left', 'part-top-lamp-right',
+      'part-win1', 'part-win2', 'part-win3', 'part-door',
+      'part-door-win-l', 'part-door-win-r', 'part-door-step',
+      'part-windshield', 'part-mirror', 'part-side-lamp', 'part-grille',
+      'part-wave', 'part-wheel-rear', 'part-wheel-front'
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -695,45 +739,139 @@
       return outCanvas.toDataURL('image/png');
     }
 
-    function createSystemDefaultBusImage(label) {
+    // 預設系統小巴圖示（採用「耆康會 50周年」小巴造型）
+    function createSystemDefaultBusImage(accentColor = '#f1c40f') {
       const c = document.createElement('canvas');
       c.width = STANDARD_BUS_WIDTH;
       c.height = STANDARD_BUS_HEIGHT;
       const ctx = c.getContext('2d');
-      ctx.lineWidth = 4; ctx.strokeStyle = '#34495e';
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = '#111111';
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
 
-      ctx.fillStyle = '#f9e79f';
-      ctx.beginPath(); ctx.roundRect(14, 58, 232, 62, [8, 16, 8, 8]); ctx.fill(); ctx.stroke();
+      // 車身主體
+      ctx.fillStyle = accentColor;
+      ctx.beginPath();
+      ctx.moveTo(14, 78);
+      ctx.quadraticCurveTo(14, 22, 68, 20);
+      ctx.lineTo(182, 20);
+      ctx.quadraticCurveTo(214, 20, 226, 42);
+      ctx.lineTo(246, 84);
+      ctx.quadraticCurveTo(250, 94, 248, 114);
+      ctx.lineTo(222, 114);
+      ctx.quadraticCurveTo(216, 92, 194, 92);
+      ctx.quadraticCurveTo(172, 92, 166, 114);
+      ctx.lineTo(84, 114);
+      ctx.quadraticCurveTo(78, 92, 56, 92);
+      ctx.quadraticCurveTo(34, 92, 28, 114);
+      ctx.lineTo(16, 114);
+      ctx.quadraticCurveTo(14, 96, 14, 78);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
 
-      ctx.fillStyle = label.includes('專線') ? '#27ae60' : '#d35400';
-      ctx.beginPath(); ctx.roundRect(22, 20, 212, 42, [16, 26, 0, 0]); ctx.fill(); ctx.stroke();
+      // 車頂牌箱
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(56, 8, 128, 16, 6);
+      ctx.fill();
+      ctx.stroke();
 
-      ctx.fillStyle = '#f1c40f'; ctx.fillRect(16, 72, 228, 12);
+      // 頂燈
+      ctx.fillStyle = '#f39c12';
+      ctx.beginPath(); ctx.ellipse(38, 36, 7, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(196, 36, 7, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+      // 三扇車窗
       ctx.fillStyle = '#d6eaf8';
-      [34, 80, 126, 172].forEach(wx => { ctx.fillRect(wx, 30, 36, 24); ctx.strokeRect(wx, 30, 36, 24); });
-
-      ctx.fillStyle = '#2c3e50'; ctx.fillRect(175, 24, 50, 18);
-      ctx.fillStyle = '#f1c40f'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('耆康線', 200, 37);
-
-      ctx.fillStyle = '#2c3e50'; ctx.font = 'bold 15px sans-serif'; ctx.fillText(label, 125, 106);
-      ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(238, 102, 6, 0, Math.PI * 2); ctx.fill();
-
-      [64, 192].forEach(wx => {
-        ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(wx, 124, 18, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#bdc3c7'; ctx.beginPath(); ctx.arc(wx, 124, 8, 0, Math.PI * 2); ctx.fill();
+      [24, 75, 126].forEach((wx, idx) => {
+        const ww = idx === 2 ? 46 : 44;
+        ctx.beginPath();
+        ctx.roundRect(wx, 45, ww, 27, 6);
+        ctx.fill();
+        ctx.stroke();
       });
+
+      // 車門
+      ctx.fillStyle = '#fffdf7';
+      ctx.beginPath(); ctx.roundRect(178, 45, 32, 69, 5); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(194, 45); ctx.lineTo(194, 114); ctx.stroke();
+      ctx.fillStyle = '#d6eaf8';
+      ctx.beginPath(); ctx.roundRect(182, 51, 9, 26, 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(197, 51, 9, 26, 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#bdc3c7';
+      ctx.beginPath(); ctx.roundRect(175, 114, 38, 5, 2); ctx.fill(); ctx.stroke();
+
+      // 車頭玻璃與後視鏡
+      ctx.fillStyle = '#d6eaf8';
+      ctx.beginPath();
+      ctx.moveTo(215, 44); ctx.lineTo(226, 44);
+      ctx.quadraticCurveTo(232, 58, 235, 76);
+      ctx.lineTo(215, 76); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.roundRect(234, 48, 12, 22, 4); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(225, 44); ctx.lineTo(238, 44); ctx.lineTo(238, 48); ctx.stroke();
+
+      // 車頭側燈與護罩
+      ctx.fillStyle = '#f39c12';
+      ctx.beginPath(); ctx.roundRect(226, 83, 11, 5, 2.5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.roundRect(234, 92, 13, 19, 2); ctx.fill(); ctx.stroke();
+      [97, 102, 107].forEach(gy => {
+        ctx.beginPath(); ctx.moveTo(234, gy); ctx.lineTo(247, gy); ctx.stroke();
+      });
+
+      // 波浪飾條
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(15, 84);
+      ctx.quadraticCurveTo(44, 92, 76, 102);
+      ctx.quadraticCurveTo(112, 112, 146, 102);
+      ctx.quadraticCurveTo(162, 97, 175, 94);
+      ctx.lineTo(175, 103);
+      ctx.quadraticCurveTo(160, 107, 144, 111);
+      ctx.quadraticCurveTo(110, 120, 74, 110);
+      ctx.quadraticCurveTo(42, 100, 15, 93);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // 車身字樣：耆康會 50周年
+      ctx.font = '900 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#111111';
+      ctx.lineWidth = 3;
+      ctx.strokeText('耆康會', 98, 88);
+      ctx.fillText('耆康會', 98, 88);
+
+      ctx.font = '900 13.5px sans-serif';
+      ctx.strokeText('50周年', 98, 102);
+      ctx.fillText('50周年', 98, 102);
+
+      // 車輪
+      ctx.lineWidth = 3.5;
+      [56, 194].forEach(wx => {
+        ctx.fillStyle = '#2c3e50';
+        ctx.beginPath(); ctx.arc(wx, 116, 20, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(wx, 116, 9.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      });
+
       return c.toDataURL('image/png');
     }
 
     function spawnInitialDefaultBuses() {
       const defaults = [
-        { name: '耆康社區號', lane: 'near', progress: 0.05 },
-        { name: '長者快樂專線', lane: 'far', progress: 0.22 },
-        { name: '匯駿愛心小巴', lane: 'near', progress: 0.45 }
+        { name: '耆康會 50周年', color: '#f1c40f', lane: 'near', progress: 0.05 },
+        { name: '耆康會 50周年', color: '#f9e79f', lane: 'far', progress: 0.22 },
+        { name: '耆康會 50周年', color: '#f1c40f', lane: 'near', progress: 0.45 }
       ];
       defaults.forEach((item, idx) => {
         activeBuses.push({
-          id: busSeqId++, image: createSystemDefaultBusImage(item.name), isDefault: true, label: item.name,
+          id: busSeqId++, image: createSystemDefaultBusImage(item.color), isDefault: true, label: item.name,
           enteredAt: Date.now() - (idx * 5000), lane: item.lane, status: 'active', progress: item.progress
         });
       });
@@ -748,8 +886,9 @@
     }
 
     function spawnSampleUserBus() {
-      const names = ['陳婆婆彩繪車', '李伯伯遊社區', '張姑娘幸福號', '黃叔叔快樂巴'];
-      enqueueBusFromAnySource(createSystemDefaultBusImage(names[Math.floor(Math.random() * names.length)]), false, '模擬參加者');
+      const colors = ['#f1c40f', '#e67e22', '#27ae60', '#3498db', '#ff6b81'];
+      const c = colors[Math.floor(Math.random() * colors.length)];
+      enqueueBusFromAnySource(createSystemDefaultBusImage(c), false, '耆康會 50周年');
     }
 
     function chooseAvailableLaneForLaunch() {
@@ -923,9 +1062,9 @@
       PALETTE_COLORS.forEach((hex, idx) => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'color-swatch' + (idx === 2 ? ' selected' : '');
+        btn.className = 'color-swatch' + (idx === 0 ? ' selected' : '');
         btn.style.backgroundColor = hex;
-        if (idx === 2) selectedBrushColor = hex;
+        if (idx === 0) selectedBrushColor = hex;
         btn.onclick = () => {
           document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
           btn.classList.add('selected');
@@ -1044,7 +1183,7 @@
       if (stampType === 'heart') {
         const s = 9;
         ctx.fillStyle = color;
-        ctx.strokeStyle = '#2c3e50';
+        ctx.strokeStyle = '#111111';
         ctx.lineWidth = 1.6;
         ctx.beginPath();
         ctx.moveTo(0, s * 0.85);
@@ -1057,7 +1196,7 @@
         const petalR = 4.6;
         const dist = 5.2;
         ctx.fillStyle = color;
-        ctx.strokeStyle = '#2c3e50';
+        ctx.strokeStyle = '#111111';
         ctx.lineWidth = 1.3;
         for (let i = 0; i < 5; i++) {
           const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
@@ -1077,7 +1216,7 @@
         const leafR = 4.5;
         const dist = 4.8;
         ctx.fillStyle = color === '#ffffff' ? '#27ae60' : color;
-        ctx.strokeStyle = '#2c3e50';
+        ctx.strokeStyle = '#111111';
         ctx.lineWidth = 1.4;
         for (let i = 0; i < 4; i++) {
           const angle = (i * Math.PI) / 2 + Math.PI / 4;
@@ -1167,30 +1306,21 @@
       if (el) el.setAttribute('fill', selectedBrushColor);
     }
 
-    function updateSvgBusLabel(text) {
-      document.getElementById('svg-bus-label').textContent = text;
-    }
-
     function randomizeBusColors() {
       const pick = () => PALETTE_COLORS[Math.floor(Math.random() * 10)];
-      document.getElementById('part-roof').setAttribute('fill', pick());
       document.getElementById('part-body').setAttribute('fill', pick());
-      document.getElementById('part-stripe').setAttribute('fill', pick());
-      ['part-win1', 'part-win2', 'part-win3', 'part-win4'].forEach(id => {
+      document.getElementById('part-roof-box').setAttribute('fill', pick());
+      document.getElementById('part-wave').setAttribute('fill', pick());
+      ['part-win1', 'part-win2', 'part-win3', 'part-door-win-l', 'part-door-win-r', 'part-windshield'].forEach(id => {
         document.getElementById(id).setAttribute('fill', '#d6eaf8');
       });
     }
 
     function resetBusColors() {
-      document.getElementById('part-roof').setAttribute('fill', '#d35400');
-      document.getElementById('part-body').setAttribute('fill', '#f9e79f');
-      document.getElementById('part-stripe').setAttribute('fill', '#f1c40f');
-      ['part-win1', 'part-win2', 'part-win3', 'part-win4'].forEach(id => {
-        document.getElementById(id).setAttribute('fill', '#d6eaf8');
+      FILLABLE_PART_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('fill', '#ffffff');
       });
-      document.getElementById('part-sign').setAttribute('fill', '#2c3e50');
-      document.getElementById('part-wheel-front').setAttribute('fill', '#2c3e50');
-      document.getElementById('part-wheel-rear').setAttribute('fill', '#2c3e50');
       overlayItems = [];
       currentPenPoints = [];
       isDrawingPen = false;
@@ -1263,14 +1393,14 @@
       sendBtn.disabled = true;
 
       let finalImageUrl = null;
-      let senderTitle = '線上填色參加者';
+      let senderTitle = '耆康會 50周年';
 
       if (mobileActiveTab === 'coloring') {
         finalImageUrl = await renderSvgBusToDataUrl();
-        senderTitle = document.getElementById('bus-label-select').value;
+        senderTitle = '耆康會 50周年小巴';
       } else {
         finalImageUrl = mobileProcessedDataUrl;
-        senderTitle = '自訂畫作參加者';
+        senderTitle = '自訂畫作小巴';
       }
 
       if (!finalImageUrl) {
@@ -1320,9 +1450,9 @@
       }
 
       const fallbackDefaults = [
-        { id: 9001, image: createSystemDefaultBusImage('耆康社區號'), lane: 'near', progress: 0.05, status: 'active' },
-        { id: 9002, image: createSystemDefaultBusImage('長者快樂專線'), lane: 'far', progress: 0.22, status: 'active' },
-        { id: 9003, image: createSystemDefaultBusImage('匯駿愛心小巴'), lane: 'near', progress: 0.45, status: 'active' }
+        { id: 9001, image: createSystemDefaultBusImage('#f1c40f'), lane: 'near', progress: 0.05, status: 'active' },
+        { id: 9002, image: createSystemDefaultBusImage('#f9e79f'), lane: 'far', progress: 0.22, status: 'active' },
+        { id: 9003, image: createSystemDefaultBusImage('#f1c40f'), lane: 'near', progress: 0.45, status: 'active' }
       ];
       fallbackDefaults.forEach(b => spawnTVBusSprite(b));
 
