@@ -102,9 +102,26 @@
     .tab-btn { padding: 10px; border: none; border-radius: 9px; font-size: 0.98rem; font-weight: bold; cursor: pointer; background: transparent; color: #7f8c8d; transition: all 0.2s; }
     .tab-btn.active { background: var(--primary-orange); color: #fff; box-shadow: 0 2px 6px rgba(230,126,34,0.3); }
 
-    /* 點選區域填色區 */
+    /* 點選區域填色 ＋ 手寫 ＋ 圖案區 */
     .coloring-stage { width: 100%; background: #fdfbf7; border: 2px solid #f5cba7; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    #bus-svg-editor { width: 100%; max-width: 440px; height: auto; touch-action: manipulation; cursor: pointer; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12)); }
+    .tool-mode-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; background: #fff4e4; padding: 5px; border-radius: 10px; border: 1px solid #f5cba7; }
+    .tool-mode-btn { padding: 7px 6px; border: none; border-radius: 8px; font-size: 0.84rem; font-weight: bold; cursor: pointer; background: transparent; color: #5d6d7e; transition: all 0.15s; }
+    .tool-mode-btn.active { background: #d35400; color: #fff; box-shadow: 0 2px 5px rgba(211,84,0,0.25); }
+
+    .stamp-bar { display: none; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: #fffdf7; padding: 7px 10px; border-radius: 10px; border: 1px solid #fae5d3; font-size: 0.86rem; font-weight: bold; }
+    .stamp-choices { display: flex; gap: 6px; }
+    .stamp-btn { padding: 6px 10px; border-radius: 8px; border: 2px solid #e0d6c8; background: #fff; font-size: 0.86rem; font-weight: bold; cursor: pointer; transition: all 0.15s; }
+    .stamp-btn.active { border-color: var(--primary-orange); background: #fef5e7; color: #d35400; transform: scale(1.04); }
+
+    .pen-bar { display: none; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: #fffdf7; padding: 7px 10px; border-radius: 10px; border: 1px solid #fae5d3; font-size: 0.84rem; font-weight: bold; }
+    .pen-bar input[type="range"] { width: 110px; }
+
+    .bus-canvas-wrap { position: relative; width: 100%; max-width: 440px; aspect-ratio: 260 / 150; border-radius: 10px; overflow: hidden; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12)); }
+    #bus-svg-editor { width: 100%; height: 100%; display: block; cursor: pointer; }
+    #bus-overlay-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; touch-action: none; }
+    #bus-overlay-canvas.interactive { pointer-events: auto; cursor: crosshair; }
+    #bus-overlay-canvas.stamp-mode { cursor: pointer; }
+
     .bus-part { transition: fill 0.15s ease; cursor: pointer; }
     .bus-part:hover { opacity: 0.9; }
 
@@ -202,12 +219,12 @@
     </div>
   </div>
 
-  <!-- 3. 手機／平板參加者互動頁面（支援點選區域填色 ＋ 自訂畫作上載） -->
+  <!-- 3. 手機／平板參加者互動頁面（支援點選區域填色 ＋ 手寫 ＋ 3款圖案 ＋ 自訂畫作上載） -->
   <div id="mobile-view">
     <div class="mobile-card">
       <div class="mobile-header">
         <h1>🚌 耆康黃色小巴遊社區</h1>
-        <p>點選顏色再輕觸小巴部位即可填色，或上載你的畫作！</p>
+        <p>可點選填色、自由手寫或貼上圖案，也可上載你的畫作！</p>
       </div>
 
       <div class="conn-bar">
@@ -217,36 +234,60 @@
 
       <!-- 模式切換分頁 -->
       <div class="mode-tabs">
-        <button id="tab-coloring" class="tab-btn active" onclick="switchMobileTab('coloring')">🎨 點選區域填色</button>
+        <button id="tab-coloring" class="tab-btn active" onclick="switchMobileTab('coloring')">🎨 填色／手寫／圖案</button>
         <button id="tab-upload" class="tab-btn" onclick="switchMobileTab('upload')">📤 上載自訂畫作</button>
       </div>
 
-      <!-- 分頁 A：點選區域填色 -->
+      <!-- 分頁 A：點選區域填色 ＋ 手寫 ＋ 3款圖案 -->
       <div id="panel-coloring" style="display:flex; flex-direction:column; gap:10px;">
         <div class="coloring-stage">
-          <div style="font-size:0.86rem; color:#d35400; font-weight:bold;">👇 先選下方顏色，再點一下小巴任何部位！</div>
-          <svg id="bus-svg-editor" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
-            <path id="part-roof" class="bus-part" d="M 38 20 L 208 20 Q 234 20 234 46 L 234 62 L 22 62 L 22 36 Q 22 20 38 20 Z" fill="#d35400" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-roof')"/>
-            <path id="part-body" class="bus-part" d="M 22 58 L 238 58 Q 246 58 246 74 L 246 112 Q 246 120 238 120 L 22 120 Q 14 120 14 112 L 14 66 Q 14 58 22 58 Z" fill="#f9e79f" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-body')"/>
-            <rect id="part-stripe" class="bus-part" x="16" y="72" width="228" height="13" fill="#f1c40f" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-stripe')"/>
-            <rect id="part-win1" class="bus-part" x="32" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win1')"/>
-            <rect id="part-win2" class="bus-part" x="76" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win2')"/>
-            <rect id="part-win3" class="bus-part" x="120" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win3')"/>
-            <rect id="part-win4" class="bus-part" x="164" y="29" width="24" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win4')"/>
-            <rect id="part-sign" class="bus-part" x="193" y="25" width="36" height="20" rx="4" fill="#2c3e50" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-sign')"/>
-            <text x="211" y="39" font-size="9.5" font-weight="bold" fill="#f1c40f" text-anchor="middle" pointer-events="none">耆康線</text>
-            <text id="svg-bus-label" x="130" y="106" font-size="14.5" font-weight="bold" fill="#2c3e50" text-anchor="middle" pointer-events="none">耆康社區號</text>
-            <circle id="part-headlight" class="bus-part" cx="238" cy="102" r="6.5" fill="#f39c12" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-headlight')"/>
-            <circle id="part-taillight" class="bus-part" cx="21" cy="102" r="5.5" fill="#e74c3c" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-taillight')"/>
-            <g class="bus-part" onclick="paintBusPart('part-wheel-front')">
-              <circle id="part-wheel-front" cx="192" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
-              <circle cx="192" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
-            </g>
-            <g class="bus-part" onclick="paintBusPart('part-wheel-rear')">
-              <circle id="part-wheel-rear" cx="64" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
-              <circle cx="64" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
-            </g>
-          </svg>
+          <div class="tool-mode-bar">
+            <button id="tool-fill" type="button" class="tool-mode-btn active" onclick="setDrawToolMode('fill')">🎨 點選填色</button>
+            <button id="tool-pen" type="button" class="tool-mode-btn" onclick="setDrawToolMode('pen')">✏️ 手寫塗鴉</button>
+            <button id="tool-stamp" type="button" class="tool-mode-btn" onclick="setDrawToolMode('stamp')">✨ 插入圖案</button>
+          </div>
+
+          <div id="stamp-options-bar" class="stamp-bar">
+            <span>選擇圖案：</span>
+            <div class="stamp-choices">
+              <button id="stamp-btn-flower" type="button" class="stamp-btn active" onclick="selectStampType('flower')">🌸 花</button>
+              <button id="stamp-btn-heart" type="button" class="stamp-btn" onclick="selectStampType('heart')">❤️ 心</button>
+              <button id="stamp-btn-clover" type="button" class="stamp-btn" onclick="selectStampType('clover')">🍀 四葉草</button>
+            </div>
+          </div>
+
+          <div id="pen-options-bar" class="pen-bar">
+            <span>筆觸粗細：<strong id="pen-size-label">4</strong></span>
+            <input id="pen-size-range" type="range" min="2" max="10" value="4" oninput="updatePenSize(this.value)" />
+          </div>
+
+          <div id="tool-hint-text" style="font-size:0.86rem; color:#d35400; font-weight:bold;">👇 先選下方顏色，再點一下小巴任何部位！</div>
+
+          <div class="bus-canvas-wrap">
+            <svg id="bus-svg-editor" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+              <path id="part-roof" class="bus-part" d="M 38 20 L 208 20 Q 234 20 234 46 L 234 62 L 22 62 L 22 36 Q 22 20 38 20 Z" fill="#d35400" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-roof')"/>
+              <path id="part-body" class="bus-part" d="M 22 58 L 238 58 Q 246 58 246 74 L 246 112 Q 246 120 238 120 L 22 120 Q 14 120 14 112 L 14 66 Q 14 58 22 58 Z" fill="#f9e79f" stroke="#2c3e50" stroke-width="3.5" onclick="paintBusPart('part-body')"/>
+              <rect id="part-stripe" class="bus-part" x="16" y="72" width="228" height="13" fill="#f1c40f" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-stripe')"/>
+              <rect id="part-win1" class="bus-part" x="32" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win1')"/>
+              <rect id="part-win2" class="bus-part" x="76" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win2')"/>
+              <rect id="part-win3" class="bus-part" x="120" y="29" width="36" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win3')"/>
+              <rect id="part-win4" class="bus-part" x="164" y="29" width="24" height="24" rx="4" fill="#d6eaf8" stroke="#2c3e50" stroke-width="3" onclick="paintBusPart('part-win4')"/>
+              <rect id="part-sign" class="bus-part" x="193" y="25" width="36" height="20" rx="4" fill="#2c3e50" stroke="#2c3e50" stroke-width="2" onclick="paintBusPart('part-sign')"/>
+              <text x="211" y="39" font-size="9.5" font-weight="bold" fill="#f1c40f" text-anchor="middle" pointer-events="none">耆康線</text>
+              <text id="svg-bus-label" x="130" y="106" font-size="14.5" font-weight="bold" fill="#2c3e50" text-anchor="middle" pointer-events="none">耆康社區號</text>
+              <circle id="part-headlight" class="bus-part" cx="238" cy="102" r="6.5" fill="#f39c12" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-headlight')"/>
+              <circle id="part-taillight" class="bus-part" cx="21" cy="102" r="5.5" fill="#e74c3c" stroke="#2c3e50" stroke-width="2.5" onclick="paintBusPart('part-taillight')"/>
+              <g class="bus-part" onclick="paintBusPart('part-wheel-front')">
+                <circle id="part-wheel-front" cx="192" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
+                <circle cx="192" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
+              </g>
+              <g class="bus-part" onclick="paintBusPart('part-wheel-rear')">
+                <circle id="part-wheel-rear" cx="64" cy="124" r="18" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
+                <circle cx="64" cy="124" r="7.5" fill="#ecf0f1" pointer-events="none"/>
+              </g>
+            </svg>
+            <canvas id="bus-overlay-canvas" width="260" height="150"></canvas>
+          </div>
 
           <div class="palette-grid" id="color-palette"></div>
 
@@ -261,9 +302,10 @@
             </select>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%;">
-            <button class="btn btn-blue" style="padding:9px; font-size:0.9rem;" onclick="randomizeBusColors()">🎲 隨機換色</button>
-            <button class="btn btn-gray" style="padding:9px; font-size:0.9rem;" onclick="resetBusColors()">🔄 還原預設黃巴</button>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; width:100%;">
+            <button type="button" class="btn btn-blue" style="padding:8px 6px; font-size:0.84rem;" onclick="randomizeBusColors()">🎲 隨機換色</button>
+            <button type="button" class="btn btn-gray" style="padding:8px 6px; font-size:0.84rem;" onclick="undoOverlayAction()">↩️ 復原筆跡</button>
+            <button type="button" class="btn btn-gray" style="padding:8px 6px; font-size:0.84rem;" onclick="resetBusColors()">🔄 全部還原</button>
           </div>
         </div>
       </div>
@@ -278,7 +320,7 @@
         </div>
         <div class="mobile-preview-area checkerboard">
           <img id="mobile-preview-img" alt="預覽畫作" style="display:none;" />
-          <span id="mobile-preview-hint" style="color:#7f8c8d; font-size:0.9rem; text-align:center; padding:12px;">可上載已填色的小巴畫作或圖片，系統會自動去背！</span>
+          <span id="mobile-preview-hint" style="color:#7f8c8d; font-size:0.9rem; text-align:center; padding:12px;">拍照或選圖後會自動套用 SCAN 去陰影提亮與去背！</span>
         </div>
         <div class="slider-row" id="mobile-slider-box" style="display:none;">
           <label style="display:flex; justify-content:space-between;">
@@ -342,6 +384,14 @@
     let mobileRawImage = null;
     let mobileProcessedDataUrl = null;
     let selectedBrushColor = '#e74c3c';
+
+    // 填色／手寫／圖案狀態
+    let drawToolMode = 'fill'; // 'fill' | 'pen' | 'stamp'
+    let selectedStampType = 'flower'; // 'flower' | 'heart' | 'clover'
+    let penStrokeWidth = 4;
+    let isDrawingPen = false;
+    let currentPenPoints = [];
+    let overlayItems = []; // { type: 'stroke', color, width, points } | { type: 'stamp', stamp, x, y, color }
 
     const PALETTE_COLORS = [
       '#f1c40f', '#e67e22', '#e74c3c', '#ff6b81', '#9b59b6', '#3498db',
@@ -519,6 +569,37 @@
       } else {
         el.innerText = '大電視畫面：🟡 尚未開啟'; el.style.color = '#7f8c8d';
       }
+    }
+
+    // 內建 SCAN 掃描增強（壓平陰影、局部提亮與對比強化）
+    function applyScanEnhancement(ctx, w, h) {
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const d = imgData.data;
+
+      let sumLum = 0;
+      const totalPx = w * h;
+      for (let i = 0; i < d.length; i += 4) {
+        sumLum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      }
+      const avgLum = sumLum / Math.max(1, totalPx);
+
+      const liftGain = avgLum < 175 ? Math.min(1.55, 195 / Math.max(85, avgLum)) : 1.08;
+      const contrast = 1.18;
+
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] < 10) continue;
+        for (let c = 0; c < 3; c++) {
+          const norm = d[i + c] / 255;
+          const shadowLift = Math.pow(1 - norm, 1.6) * 28;
+          let v = d[i + c] * liftGain + shadowLift;
+
+          v = (v - 138) * contrast + 138;
+          if (v > 222) v = 255;
+
+          d[i + c] = Math.max(0, Math.min(255, Math.round(v)));
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
     }
 
     function processWhiteBgRemoval(canvas, ctx, threshold = 210, feather = 28) {
@@ -827,10 +908,12 @@
     }
 
     // ==========================================
-    // 3. 手機／平板端（Firebase 雲端寫入 ＋ 點選填色）
+    // 3. 手機／平板端（Firebase 雲端寫入 ＋ 填色／手寫／圖案 ＋ 內建 SCAN 拍照升級）
     // ==========================================
     function initMobilePage() {
       buildColorPalette();
+      setupOverlayCanvasEvents();
+      setDrawToolMode('fill');
       initFirebaseConnection();
     }
 
@@ -852,6 +935,217 @@
       });
     }
 
+    function setDrawToolMode(mode) {
+      drawToolMode = mode;
+      document.getElementById('tool-fill').classList.toggle('active', mode === 'fill');
+      document.getElementById('tool-pen').classList.toggle('active', mode === 'pen');
+      document.getElementById('tool-stamp').classList.toggle('active', mode === 'stamp');
+
+      document.getElementById('stamp-options-bar').style.display = mode === 'stamp' ? 'flex' : 'none';
+      document.getElementById('pen-options-bar').style.display = mode === 'pen' ? 'flex' : 'none';
+
+      const overlay = document.getElementById('bus-overlay-canvas');
+      overlay.classList.remove('interactive', 'stamp-mode');
+
+      const hintEl = document.getElementById('tool-hint-text');
+      if (mode === 'fill') {
+        hintEl.innerText = '👇 先選下方顏色，再點一下小巴任何部位！';
+      } else if (mode === 'pen') {
+        overlay.classList.add('interactive');
+        hintEl.innerText = '✏️ 選好顏色與筆觸後，直接在小巴上自由手寫或畫線！';
+      } else if (mode === 'stamp') {
+        overlay.classList.add('interactive', 'stamp-mode');
+        hintEl.innerText = '✨ 選好花／心／四葉草與顏色後，點一下小巴位置即可貼上！';
+      }
+    }
+
+    function selectStampType(type) {
+      selectedStampType = type;
+      ['flower', 'heart', 'clover'].forEach(k => {
+        document.getElementById('stamp-btn-' + k).classList.toggle('active', k === type);
+      });
+    }
+
+    function updatePenSize(val) {
+      penStrokeWidth = parseInt(val, 10) || 4;
+      document.getElementById('pen-size-label').innerText = penStrokeWidth;
+    }
+
+    function getOverlayCoords(evt) {
+      const canvas = document.getElementById('bus-overlay-canvas');
+      const rect = canvas.getBoundingClientRect();
+      const clientX = evt.touches && evt.touches.length ? evt.touches[0].clientX : evt.clientX;
+      const clientY = evt.touches && evt.touches.length ? evt.touches[0].clientY : evt.clientY;
+      const x = ((clientX - rect.left) / rect.width) * STANDARD_BUS_WIDTH;
+      const y = ((clientY - rect.top) / rect.height) * STANDARD_BUS_HEIGHT;
+      return {
+        x: Math.max(0, Math.min(STANDARD_BUS_WIDTH, x)),
+        y: Math.max(0, Math.min(STANDARD_BUS_HEIGHT, y))
+      };
+    }
+
+    function setupOverlayCanvasEvents() {
+      const canvas = document.getElementById('bus-overlay-canvas');
+
+      const handleStart = (e) => {
+        if (drawToolMode === 'fill') return;
+        e.preventDefault();
+        const pt = getOverlayCoords(e);
+
+        if (drawToolMode === 'stamp') {
+          overlayItems.push({
+            type: 'stamp',
+            stamp: selectedStampType,
+            x: pt.x,
+            y: pt.y,
+            color: selectedBrushColor
+          });
+          redrawOverlayCanvas();
+        } else if (drawToolMode === 'pen') {
+          isDrawingPen = true;
+          currentPenPoints = [pt];
+          redrawOverlayCanvas();
+        }
+      };
+
+      const handleMove = (e) => {
+        if (drawToolMode !== 'pen' || !isDrawingPen) return;
+        e.preventDefault();
+        const pt = getOverlayCoords(e);
+        currentPenPoints.push(pt);
+        redrawOverlayCanvas();
+      };
+
+      const handleEnd = () => {
+        if (drawToolMode === 'pen' && isDrawingPen) {
+          isDrawingPen = false;
+          if (currentPenPoints.length > 0) {
+            overlayItems.push({
+              type: 'stroke',
+              color: selectedBrushColor,
+              width: penStrokeWidth,
+              points: [...currentPenPoints]
+            });
+          }
+          currentPenPoints = [];
+          redrawOverlayCanvas();
+        }
+      };
+
+      canvas.addEventListener('pointerdown', handleStart);
+      canvas.addEventListener('pointermove', handleMove);
+      window.addEventListener('pointerup', handleEnd);
+    }
+
+    function drawStampOnContext(ctx, stampType, x, y, color) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      if (stampType === 'heart') {
+        const s = 9;
+        ctx.fillStyle = color;
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(0, s * 0.85);
+        ctx.bezierCurveTo(-s * 1.35, s * 0.1, -s * 1.15, -s * 0.95, 0, -s * 0.35);
+        ctx.bezierCurveTo(s * 1.15, -s * 0.95, s * 1.35, s * 0.1, 0, s * 0.85);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (stampType === 'flower') {
+        const petalR = 4.6;
+        const dist = 5.2;
+        ctx.fillStyle = color;
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 1.3;
+        for (let i = 0; i < 5; i++) {
+          const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+          const px = Math.cos(angle) * dist;
+          const py = Math.sin(angle) * dist;
+          ctx.beginPath();
+          ctx.arc(px, py, petalR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.fillStyle = '#f1c40f';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      } else if (stampType === 'clover') {
+        const leafR = 4.5;
+        const dist = 4.8;
+        ctx.fillStyle = color === '#ffffff' ? '#27ae60' : color;
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 1.4;
+        for (let i = 0; i < 4; i++) {
+          const angle = (i * Math.PI) / 2 + Math.PI / 4;
+          const lx = Math.cos(angle) * dist;
+          const ly = Math.sin(angle) * dist;
+          ctx.beginPath();
+          ctx.arc(lx, ly, leafR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(2, 5);
+        ctx.quadraticCurveTo(6, 10, 9, 12);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawStrokeOnContext(ctx, points, color, width) {
+      if (!points || points.length === 0) return;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (points.length === 1) {
+        ctx.beginPath();
+        ctx.arc(points[0].x, points[0].y, width / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function redrawOverlayCanvas() {
+      const canvas = document.getElementById('bus-overlay-canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      overlayItems.forEach(item => {
+        if (item.type === 'stroke') {
+          drawStrokeOnContext(ctx, item.points, item.color, item.width);
+        } else if (item.type === 'stamp') {
+          drawStampOnContext(ctx, item.stamp, item.x, item.y, item.color);
+        }
+      });
+
+      if (isDrawingPen && currentPenPoints.length > 0) {
+        drawStrokeOnContext(ctx, currentPenPoints, selectedBrushColor, penStrokeWidth);
+      }
+    }
+
+    function undoOverlayAction() {
+      if (overlayItems.length > 0) {
+        overlayItems.pop();
+        redrawOverlayCanvas();
+      }
+    }
+
     function switchMobileTab(tab) {
       mobileActiveTab = tab;
       document.getElementById('tab-coloring').classList.toggle('active', tab === 'coloring');
@@ -868,6 +1162,7 @@
     }
 
     function paintBusPart(partId) {
+      if (drawToolMode !== 'fill') return;
       const el = document.getElementById(partId);
       if (el) el.setAttribute('fill', selectedBrushColor);
     }
@@ -896,6 +1191,10 @@
       document.getElementById('part-sign').setAttribute('fill', '#2c3e50');
       document.getElementById('part-wheel-front').setAttribute('fill', '#2c3e50');
       document.getElementById('part-wheel-rear').setAttribute('fill', '#2c3e50');
+      overlayItems = [];
+      currentPenPoints = [];
+      isDrawingPen = false;
+      redrawOverlayCanvas();
     }
 
     function renderSvgBusToDataUrl() {
@@ -913,6 +1212,7 @@
           canvas.height = STANDARD_BUS_HEIGHT;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
+          ctx.drawImage(document.getElementById('bus-overlay-canvas'), 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
           URL.revokeObjectURL(url);
           resolve(canvas.toDataURL('image/png'));
         };
@@ -949,7 +1249,9 @@
       canvas.width = w; canvas.height = h;
       ctx.drawImage(mobileRawImage, 0, 0, w, h);
 
+      applyScanEnhancement(ctx, w, h);
       mobileProcessedDataUrl = processWhiteBgRemoval(canvas, ctx, thresh, 28);
+
       const preview = document.getElementById('mobile-preview-img');
       preview.src = mobileProcessedDataUrl; preview.style.display = 'block';
       document.getElementById('mobile-preview-hint').style.display = 'none';
