@@ -124,7 +124,10 @@
 
     .bus-part { transition: fill 0.15s ease; cursor: pointer; }
     .bus-part:hover { opacity: 0.92; }
-    .bus-title-text { font-weight: 900; fill: #ffffff; stroke: #111111; stroke-width: 1.5; paint-order: stroke fill; pointer-events: none; }
+    .bus-title-text { font-weight: 900; stroke: #111111; stroke-width: 2.2; paint-order: stroke fill; }
+    .bus-title-static { fill: #ffffff; pointer-events: none; }
+    .bus-title-fillable { cursor: pointer; transition: fill 0.15s ease; }
+    .bus-title-fillable:hover { opacity: 0.92; }
 
     .palette-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; width: 100%; padding: 4px 0; }
     .color-swatch {
@@ -246,7 +249,7 @@
           </div>
 
           <div id="stamp-options-bar" class="stamp-bar">
-            <span>選擇圖案：</span>
+            <span>選擇高清圖案：</span>
             <div class="stamp-choices">
               <button id="stamp-btn-flower" type="button" class="stamp-btn active" onclick="selectStampType('flower')">🌸 花</button>
               <button id="stamp-btn-heart" type="button" class="stamp-btn" onclick="selectStampType('heart')">❤️ 心</button>
@@ -259,11 +262,11 @@
             <input id="pen-size-range" type="range" min="2" max="10" value="4" oninput="updatePenSize(this.value)" />
           </div>
 
-          <div id="tool-hint-text" style="font-size:0.86rem; color:#d35400; font-weight:bold;">👇 先選下方顏色，再點一下小巴任何部位！</div>
+          <div id="tool-hint-text" style="font-size:0.86rem; color:#d35400; font-weight:bold;">👇 先選下方顏色，再點一下小巴部位或「50周年」！</div>
 
           <div class="bus-canvas-wrap">
             <svg id="bus-svg-editor" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
-              <!-- 車身與車頂底色區域（配合「耆康會 50周年」小巴線稿） -->
+              <!-- 車身與車頂底色區域（配合「耆康會 50周年」小巴線稿）[cite: 2] -->
               <path id="part-body" class="bus-part"
                 d="M 14 78 Q 14 22 68 20 L 182 20 Q 214 20 226 42 L 246 84 Q 250 94 248 114 L 222 114 Q 216 92 194 92 Q 172 92 166 114 L 84 114 Q 78 92 56 92 Q 34 92 28 114 L 16 114 Q 14 96 14 78 Z"
                 fill="#ffffff" stroke="#111111" stroke-width="3.6" stroke-linejoin="round" onclick="paintBusPart('part-body')" />
@@ -319,9 +322,10 @@
                 d="M 15 84 Q 44 92 76 102 Q 112 112 146 102 Q 162 97 175 94 L 175 103 Q 160 107 144 111 Q 110 120 74 110 Q 42 100 15 93 Z"
                 fill="#ffffff" stroke="#111111" stroke-width="2.6" stroke-linejoin="round" onclick="paintBusPart('part-wave')" />
 
-              <!-- 車身字樣：耆康會 50周年 -->
-              <text x="98" y="88" font-size="14" text-anchor="middle" class="bus-title-text">耆康會</text>
-              <text x="98" y="102" font-size="13.5" text-anchor="middle" class="bus-title-text">50周年</text>
+              <!-- 車身字樣：耆康會（底標）與可填色 50周年[cite: 2] -->
+              <text x="98" y="88" font-size="14" text-anchor="middle" class="bus-title-text bus-title-static">耆康會</text>
+              <text id="part-50th-text" x="98" y="102" font-size="13.5" text-anchor="middle"
+                fill="#ffffff" class="bus-title-text bus-title-fillable" onclick="paintBusPart('part-50th-text')">50周年</text>
 
               <!-- 後輪與前輪 -->
               <g onclick="paintBusPart('part-wheel-rear')">
@@ -333,7 +337,8 @@
                 <circle cx="194" cy="116" r="9.5" fill="#ffffff" stroke="#111111" stroke-width="3" pointer-events="none" />
               </g>
             </svg>
-            <canvas id="bus-overlay-canvas" width="260" height="150"></canvas>
+            <!-- 2x 高解析度疊加畫布（邏輯座標 260x150，實體畫素 520x300） -->
+            <canvas id="bus-overlay-canvas" width="520" height="300"></canvas>
           </div>
 
           <div class="palette-grid" id="color-palette"></div>
@@ -399,6 +404,7 @@
     const SYNC_CHANNEL_NAME = 'sage_minibus_tv_sync_v3';
     const STANDARD_BUS_WIDTH = 260;
     const STANDARD_BUS_HEIGHT = 150;
+    const OVERLAY_HD_SCALE = 2; // 高清印章與筆跡繪製倍率
 
     const urlParams = new URLSearchParams(window.location.search);
     const VIEW_MODE = urlParams.get('mode') || 'display';
@@ -439,7 +445,7 @@
       'part-win1', 'part-win2', 'part-win3', 'part-door',
       'part-door-win-l', 'part-door-win-r', 'part-door-step',
       'part-windshield', 'part-mirror', 'part-side-lamp', 'part-grille',
-      'part-wave', 'part-wheel-rear', 'part-wheel-front'
+      'part-wave', 'part-50th-text', 'part-wheel-rear', 'part-wheel-front'
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -739,7 +745,7 @@
       return outCanvas.toDataURL('image/png');
     }
 
-    // 預設系統小巴圖示（採用「耆康會 50周年」小巴造型）
+    // 預設系統小巴圖示（採用「耆康會 50周年」小巴造型）[cite: 2]
     function createSystemDefaultBusImage(accentColor = '#f1c40f') {
       const c = document.createElement('canvas');
       c.width = STANDARD_BUS_WIDTH;
@@ -750,7 +756,6 @@
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
 
-      // 車身主體
       ctx.fillStyle = accentColor;
       ctx.beginPath();
       ctx.moveTo(14, 78);
@@ -771,19 +776,16 @@
       ctx.fill();
       ctx.stroke();
 
-      // 車頂牌箱
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.roundRect(56, 8, 128, 16, 6);
       ctx.fill();
       ctx.stroke();
 
-      // 頂燈
       ctx.fillStyle = '#f39c12';
       ctx.beginPath(); ctx.ellipse(38, 36, 7, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.ellipse(196, 36, 7, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
-      // 三扇車窗
       ctx.fillStyle = '#d6eaf8';
       [24, 75, 126].forEach((wx, idx) => {
         const ww = idx === 2 ? 46 : 44;
@@ -793,7 +795,6 @@
         ctx.stroke();
       });
 
-      // 車門
       ctx.fillStyle = '#fffdf7';
       ctx.beginPath(); ctx.roundRect(178, 45, 32, 69, 5); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(194, 45); ctx.lineTo(194, 114); ctx.stroke();
@@ -803,7 +804,6 @@
       ctx.fillStyle = '#bdc3c7';
       ctx.beginPath(); ctx.roundRect(175, 114, 38, 5, 2); ctx.fill(); ctx.stroke();
 
-      // 車頭玻璃與後視鏡
       ctx.fillStyle = '#d6eaf8';
       ctx.beginPath();
       ctx.moveTo(215, 44); ctx.lineTo(226, 44);
@@ -815,7 +815,6 @@
       ctx.beginPath(); ctx.roundRect(234, 48, 12, 22, 4); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(225, 44); ctx.lineTo(238, 44); ctx.lineTo(238, 48); ctx.stroke();
 
-      // 車頭側燈與護罩
       ctx.fillStyle = '#f39c12';
       ctx.beginPath(); ctx.roundRect(226, 83, 11, 5, 2.5); ctx.fill(); ctx.stroke();
       ctx.fillStyle = '#ffffff';
@@ -824,7 +823,6 @@
         ctx.beginPath(); ctx.moveTo(234, gy); ctx.lineTo(247, gy); ctx.stroke();
       });
 
-      // 波浪飾條
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.moveTo(15, 84);
@@ -838,7 +836,6 @@
       ctx.closePath();
       ctx.fill(); ctx.stroke();
 
-      // 車身字樣：耆康會 50周年
       ctx.font = '900 14px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#ffffff';
@@ -851,7 +848,6 @@
       ctx.strokeText('50周年', 98, 102);
       ctx.fillText('50周年', 98, 102);
 
-      // 車輪
       ctx.lineWidth = 3.5;
       [56, 194].forEach(wx => {
         ctx.fillStyle = '#2c3e50';
@@ -1047,12 +1043,13 @@
     }
 
     // ==========================================
-    // 3. 手機／平板端（Firebase 雲端寫入 ＋ 填色／手寫／圖案 ＋ 內建 SCAN 拍照升級）
+    // 3. 手機／平板端（Firebase 雲端寫入 ＋ 填色／手寫／高清圖案 ＋ 內建 SCAN 拍照升級）
     // ==========================================
     function initMobilePage() {
       buildColorPalette();
       setupOverlayCanvasEvents();
       setDrawToolMode('fill');
+      redrawOverlayCanvas();
       initFirebaseConnection();
     }
 
@@ -1088,13 +1085,13 @@
 
       const hintEl = document.getElementById('tool-hint-text');
       if (mode === 'fill') {
-        hintEl.innerText = '👇 先選下方顏色，再點一下小巴任何部位！';
+        hintEl.innerText = '👇 先選下方顏色，再點一下小巴部位或「50周年」！';
       } else if (mode === 'pen') {
         overlay.classList.add('interactive');
         hintEl.innerText = '✏️ 選好顏色與筆觸後，直接在小巴上自由手寫或畫線！';
       } else if (mode === 'stamp') {
         overlay.classList.add('interactive', 'stamp-mode');
-        hintEl.innerText = '✨ 選好花／心／四葉草與顏色後，點一下小巴位置即可貼上！';
+        hintEl.innerText = '✨ 選好高清花／心／四葉草與顏色後，點一下小巴位置即可貼上！';
       }
     }
 
@@ -1110,6 +1107,7 @@
       document.getElementById('pen-size-label').innerText = penStrokeWidth;
     }
 
+    // 取得邏輯座標（0..260, 0..150）
     function getOverlayCoords(evt) {
       const canvas = document.getElementById('bus-overlay-canvas');
       const rect = canvas.getBoundingClientRect();
@@ -1176,28 +1174,36 @@
       window.addEventListener('pointerup', handleEnd);
     }
 
+    // 高清繪製圖案（內部座標系已按 scale 放大，線條與花瓣細節更細膩）
     function drawStampOnContext(ctx, stampType, x, y, color) {
       ctx.save();
       ctx.translate(x, y);
 
       if (stampType === 'heart') {
-        const s = 9;
+        const s = 9.5;
         ctx.fillStyle = color;
         ctx.strokeStyle = '#111111';
-        ctx.lineWidth = 1.6;
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = 'round';
         ctx.beginPath();
-        ctx.moveTo(0, s * 0.85);
-        ctx.bezierCurveTo(-s * 1.35, s * 0.1, -s * 1.15, -s * 0.95, 0, -s * 0.35);
-        ctx.bezierCurveTo(s * 1.15, -s * 0.95, s * 1.35, s * 0.1, 0, s * 0.85);
+        ctx.moveTo(0, s * 0.88);
+        ctx.bezierCurveTo(-s * 1.4, s * 0.12, -s * 1.18, -s * 0.98, 0, -s * 0.36);
+        ctx.bezierCurveTo(s * 1.18, -s * 0.98, s * 1.4, s * 0.12, 0, s * 0.88);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
+
+        // 高光反光點提升立體高清感
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.45, -s * 0.35, s * 0.18, s * 0.1, -0.5, 0, Math.PI * 2);
+        ctx.fill();
       } else if (stampType === 'flower') {
-        const petalR = 4.6;
-        const dist = 5.2;
+        const petalR = 4.7;
+        const dist = 5.4;
         ctx.fillStyle = color;
         ctx.strokeStyle = '#111111';
-        ctx.lineWidth = 1.3;
+        ctx.lineWidth = 1.35;
         for (let i = 0; i < 5; i++) {
           const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
           const px = Math.cos(angle) * dist;
@@ -1209,13 +1215,14 @@
         }
         ctx.fillStyle = '#f1c40f';
         ctx.beginPath();
-        ctx.arc(0, 0, 3.8, 0, Math.PI * 2);
+        ctx.arc(0, 0, 4.0, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
       } else if (stampType === 'clover') {
-        const leafR = 4.5;
-        const dist = 4.8;
-        ctx.fillStyle = color === '#ffffff' ? '#27ae60' : color;
+        const leafR = 4.6;
+        const dist = 4.9;
+        const leafColor = color === '#ffffff' ? '#27ae60' : color;
+        ctx.fillStyle = leafColor;
         ctx.strokeStyle = '#111111';
         ctx.lineWidth = 1.4;
         for (let i = 0; i < 4; i++) {
@@ -1228,8 +1235,8 @@
           ctx.stroke();
         }
         ctx.beginPath();
-        ctx.moveTo(2, 5);
-        ctx.quadraticCurveTo(6, 10, 9, 12);
+        ctx.moveTo(2.2, 5.2);
+        ctx.quadraticCurveTo(6.2, 10.2, 9.2, 12.2);
         ctx.stroke();
       }
 
@@ -1260,10 +1267,9 @@
       ctx.restore();
     }
 
-    function redrawOverlayCanvas() {
-      const canvas = document.getElementById('bus-overlay-canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function renderOverlayItemsToContext(ctx, scaleFactor = 1) {
+      ctx.save();
+      ctx.scale(scaleFactor, scaleFactor);
 
       overlayItems.forEach(item => {
         if (item.type === 'stroke') {
@@ -1276,6 +1282,17 @@
       if (isDrawingPen && currentPenPoints.length > 0) {
         drawStrokeOnContext(ctx, currentPenPoints, selectedBrushColor, penStrokeWidth);
       }
+
+      ctx.restore();
+    }
+
+    function redrawOverlayCanvas() {
+      const canvas = document.getElementById('bus-overlay-canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      renderOverlayItemsToContext(ctx, OVERLAY_HD_SCALE);
     }
 
     function undoOverlayAction() {
@@ -1311,6 +1328,7 @@
       document.getElementById('part-body').setAttribute('fill', pick());
       document.getElementById('part-roof-box').setAttribute('fill', pick());
       document.getElementById('part-wave').setAttribute('fill', pick());
+      document.getElementById('part-50th-text').setAttribute('fill', pick());
       ['part-win1', 'part-win2', 'part-win3', 'part-door-win-l', 'part-door-win-r', 'part-windshield'].forEach(id => {
         document.getElementById(id).setAttribute('fill', '#d6eaf8');
       });
@@ -1327,6 +1345,7 @@
       redrawOverlayCanvas();
     }
 
+    // 高解析度合成後輸出標準小巴圖檔
     function renderSvgBusToDataUrl() {
       return new Promise((resolve) => {
         const svgEl = document.getElementById('bus-svg-editor');
@@ -1337,14 +1356,25 @@
 
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = STANDARD_BUS_WIDTH;
-          canvas.height = STANDARD_BUS_HEIGHT;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
-          ctx.drawImage(document.getElementById('bus-overlay-canvas'), 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
+          const hdCanvas = document.createElement('canvas');
+          hdCanvas.width = STANDARD_BUS_WIDTH * OVERLAY_HD_SCALE;
+          hdCanvas.height = STANDARD_BUS_HEIGHT * OVERLAY_HD_SCALE;
+          const hdCtx = hdCanvas.getContext('2d');
+          hdCtx.imageSmoothingEnabled = true;
+          hdCtx.imageSmoothingQuality = 'high';
+          hdCtx.drawImage(img, 0, 0, hdCanvas.width, hdCanvas.height);
+          renderOverlayItemsToContext(hdCtx, OVERLAY_HD_SCALE);
+
+          const outCanvas = document.createElement('canvas');
+          outCanvas.width = STANDARD_BUS_WIDTH;
+          outCanvas.height = STANDARD_BUS_HEIGHT;
+          const outCtx = outCanvas.getContext('2d');
+          outCtx.imageSmoothingEnabled = true;
+          outCtx.imageSmoothingQuality = 'high';
+          outCtx.drawImage(hdCanvas, 0, 0, STANDARD_BUS_WIDTH, STANDARD_BUS_HEIGHT);
+
           URL.revokeObjectURL(url);
-          resolve(canvas.toDataURL('image/png'));
+          resolve(outCanvas.toDataURL('image/png'));
         };
         img.src = url;
       });
