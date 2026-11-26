@@ -117,7 +117,7 @@
     .pen-bar input[type="range"] { width: 110px; }
 
     .bus-canvas-wrap { position: relative; width: 100%; max-width: 440px; aspect-ratio: 260 / 150; border-radius: 10px; overflow: hidden; background: #ffffff; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12)); }
-    #bus-svg-editor { width: 100%; height: 100%; display: block; cursor: pointer; }
+    #bus-svg-editor { width: 100%; height: 100%; display: none; cursor: pointer; } /* 預設隱藏 SVG，用自訂底圖 */
     #bus-overlay-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; touch-action: none; z-index: 3; }
     #bus-overlay-canvas.interactive { pointer-events: auto; cursor: crosshair; }
     #bus-overlay-canvas.stamp-mode { cursor: pointer; }
@@ -261,7 +261,7 @@
             <input id="pen-size-range" type="range" min="2" max="10" value="4" oninput="updatePenSize(this.value)" />
           </div>
 
-          <div id="tool-hint-text" style="font-size:0.86rem; color:#d35400; font-weight:bold;">👇 先選下方顏色，再點一下小巴部位或「耆康會」「50周年」！</div>
+          <div id="tool-hint-text" style="font-size:0.86rem; color:#d35400; font-weight:bold;">🎨 正在載入你嘅小巴線稿底圖...</div>
 
           <!-- 自訂底圖上載 -->
           <div style="display:flex; gap:8px; width:100%;">
@@ -272,7 +272,7 @@
 
           <div class="bus-canvas-wrap">
             <!-- 自訂底圖層（上載後顯示） -->
-            <canvas id="base-color-canvas" width="520" height="300" style="position:absolute; inset:0; width:100%; height:100%; display:none; z-index:1;"></canvas>
+            <canvas id="base-color-canvas" width="520" height="300" style="position:absolute; inset:0; width:100%; height:100%; display:block; z-index:1;"></canvas>
             <svg id="bus-svg-editor" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg" style="position:relative; z-index:2;">
               <!-- 車身與車頂底色區域（配合「耆康會 50周年」小巴線稿） -->
               <path id="part-body" class="bus-part"
@@ -1133,6 +1133,7 @@
         customBaseImage = cropped;
         usingCustomBase = true;
 
+        // 確保 SVG 隱藏，底圖顯示
         document.getElementById('bus-svg-editor').style.display = 'none';
         baseColorCanvas.style.display = 'block';
 
@@ -1142,7 +1143,11 @@
         baseColorCtx.drawImage(cropped, 0, 0, baseColorCanvas.width, baseColorCanvas.height);
 
         setDrawToolMode('fill');
-        document.getElementById('tool-hint-text').innerText = '🎨 已載入預設小巴線稿！選顏色後用油漆桶點選填色。';
+        document.getElementById('tool-hint-text').innerText = '🎨 已載入你嘅小巴線稿！選顏色後用油漆桶點選填色。';
+      };
+      img.onerror = () => {
+        console.error('預設底圖載入失敗');
+        document.getElementById('tool-hint-text').innerText = '⚠️ 底圖載入失敗，請重新整理頁面。';
       };
       img.src = DEFAULT_BASE_IMAGE_B64;
     }
